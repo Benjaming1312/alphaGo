@@ -1,0 +1,2 @@
+# alphaGo
+alphaGo prototype
