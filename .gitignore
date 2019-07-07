@@ -5,7 +5,8 @@ yarn-error.log
 .html
 package.json
 layout
-gulp/
+gulp/html
+gulp/sass
 gulpfile.js
 package-lock.json
 src/
