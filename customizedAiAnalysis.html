@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-hant">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.2.1/assets/owl.carousel.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/dist/css/usercss.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.2.1/owl.carousel.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="/dist/js/userjs.js"></script>
+    <title>自訂AI分析
+    </title>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row flex">
+        <header class="col-xs-12 head">
+          <div class="row flex">
+            <!-- Logo-->
+            <aside class="col-sm-3 col-xs-12 side"><span class="logo" style="background: url(dist/images/headlogo.svg);"></span></aside>
+            <!-- 使用者區塊-->
+            <main class="col-sm-9 nav">
+              <div class="pull-right">
+                <!-- User name--><span class="name">Hello Leona!</span>
+                <!-- User icon--><span class="icon" style="background: url(dist/images/usericon.svg);"></span>
+              </div>
+            </main>
+          </div>
+        </header>
+        <!-- 左側列表-->
+        <aside class="col-sm-3 col-xs-3 side panel-group" id="accordion">
+          <nav class="panel">
+            <!-- 投資策略模型-->
+            <p><a class="collapse-href" href="#nav-1" data-toggle="collapse" data-parent="#accordion"><span class="icon" style="background:url(dist/images/icon-side-1.svg);"></span><span>投資策略模型</span><span class="arrow"></span></a></p>
+            <ul class="collapse" id="nav-1">
+              <li><a href="index.html">巴菲特投資模型</a></li>
+              <li><a href="peterLynch.html">彼得林區投資模型</a></li>
+              <li><a href="snowball.html">雪球存股投資模型</a></li>
+              <li><a href="customized.html">自訂投資策略模型</a></li>
+            </ul>
+          </nav>
+          <nav class="panel">
+            <!-- AI預測分析-->
+            <p><a class="collapse-href" href="#nav-2" data-toggle="collapse" data-parent="#accordion"><span class="icon" style="background:url(dist/images/icon-side-2.svg);"></span><span>AI預測分析</span><span class="arrow"></span></a></p>
+            <ul class="collapse" id="nav-2">
+              <li><a href="aiAnalysis.html">AlphaStock AI分析</a></li>
+              <li><a href="customizedAiAnalysis.html">自訂AI分析</a></li>
+            </ul>
+          </nav>
+          <nav class="panel">
+            <!-- 數據圖表分析-->
+            <p><a class="collapse-href" href="dataAnalysis.html"><span class="icon" style="background:url(dist/images/icon-side-3.svg);"></span><span>數據圖表分析</span></a></p>
+            <!-- 收合按鈕-->
+            <p class="toggle-side"><a href="javascript: void(0)" style="background:url(dist/images/arrow.svg);"></a></p>
+          </nav>
+        </aside>
+        <!-- 右側內文-->
+        <article class="col-sm-9 col-xs-12 main">
+          <div class="yellowC" id="cusAiAnalysis">
+            <div class="row">
+              <!-- Banner-->
+              <div class="col-xs-12 banner"><img class="img-responsive center-block" src="dist/images/banner-6.png" alt=""/></div>
+            </div>
+            <!-- 內容-->
+            <div class="row wrapper flex cusAI">
+              <aside class="col-sm-4 col-xs-12">
+                <!-- 設定預測目標-->
+                <section class="section configuration">
+                  <header class="head bg-color">設定預測目標</header>
+                  <div class="content">
+                    <!-- 產業類別-->
+                    <div class="form-group">
+                      <label class="title" for="category">產業類別</label>
+                      <select class="form-control" id="category" name="category" v-model="setOpt.selectCategory">
+                        <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
+                      </select>
+                    </div>
+                    <!-- 公司名稱-->
+                    <div class="form-group">
+                      <label class="title" for="company">公司名稱</label>
+                      <select class="form-control" id="company" name="company" v-model="companySelect">
+                        <option v-for="(data, idx) in companyInfo" :value="data['公司代號']" :key="idx">
+                          {{data['公司代號']}}
+                          {{data['公司名稱']}}
+                        </option>
+                      </select>
+                    </div>
+                    <!-- 資料起始日期-->
+                    <div class="form-inline">
+                      <div class="form-group">
+                        <label class="title" for="startTime">資料起始日期<span id="startTime">：1999/01</span></label>
+                      </div>
+                    </div>
+                    <!-- 股票買進日期-->
+                    <div class="form-group">
+                      <label class="title" for="buyTime">股票買進日期</label>
+                      <select class="form-control" id="buyTime" name="buyTime" v-model="setOpt.buyTime">
+                        <option value="2019/06">2019/06</option>
+                      </select>
+                    </div>
+                    <!-- 股票持有期間-->
+                    <div class="form-group">
+                      <label class="title" for="durTime">股票持有期間</label>
+                      <select class="form-control" id="durTime" name="durTime" v-model="setOpt.durTime">
+                        <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
+                      </select>
+                    </div>
+                    <!-- 預估報酬率大於-->
+                    <div class="form-group">
+                      <label class="title" for="ror">預估報酬率大於</label>
+                      <input class="form-control" id="ror" type="number" value="50"/>
+                    </div>
+                    <button class="btn" id="submit" @click="submit('setSync')">開始分析</button>
+                  </div>
+                </section>
+              </aside>
+              <aside class="col-sm-4 col-xs-12 yellowD">
+                <!-- 設定預測目標-->
+                <section class="section configuration">
+                  <header class="head bg-color">設定預測因素</header>
+                  <div class="content">
+                    <!-- 指標類型-->
+                    <div class="form-group">
+                      <label class="title" for="targetCategory">指標類型</label>
+                      <select class="form-control" id="targetCategory" name="targetCategory" v-model="getOpt.dataType">
+                        <option v-for="(data, idx) in dataCategory" :value="data" :key="idx">{{data}}</option>
+                      </select>
+                    </div>
+                    <!-- 資料統計年度-->
+                    <div class="form-group">
+                      <label class="title" for="perYear">資料統計年度</label>
+                      <select class="form-control" id="perYear" name="perYear" v-model="getOpt.durTime">
+                        <option value="最近1年">最近1年</option>
+                      </select>
+                    </div>
+                    <!-- 指標類別-->
+                    <div class="form-group">
+                      <label class="title" for="profit">指標類別</label>
+                      <select class="form-control" id="profit" name="profit" v-model="getOpt.categoryIdx">
+                        <option v-for="(data, idx) in indexCategory" :value="data" :key="idx">{{data}}</option>
+                      </select>
+                    </div>
+                    <!-- 項目 -->
+                    <div class="form-group">
+                      <label class="title" for="rot">
+                         項目 <span class="unit">
+                          ：
+                          {{getUnit(getOpt.categoryItem)}}</span></label>
+                      <select class="form-control" id="rot" name="rot" v-model="getOpt.categoryItem">
+                        <option v-for="(data, idx) in itemCategory" :value="data" :key="idx">{{data}}</option>
+                      </select>
+                    </div>
+                    <!-- 資料型態-->
+                    <div class="form-group">
+                      <label class="title" for="dataType">資料型態</label>
+                      <select class="form-control" id="dataType" name="dataType" v-model="getOpt.dataOption">
+                        <option value="當期值">當期值</option>
+                      </select>
+                    </div>
+                    <!-- 輸入條件-->
+                    <div class="btn-group">
+                      <button class="btn" id="send" @click="send">輸入條件</button>
+                      <button class="btn" id="clear" @click="clear">清除條件</button>
+                      <button class="btn" id="submit" @click="submit('guesSync')">開始分析</button>
+                    </div>
+                  </div>
+                </section>
+              </aside>
+              <aside class="col-sm-4 col-xs-12 guessRlt">
+                <!-- 預測目標內容-->
+                <section class="section configuration attention">
+                  <header class="head bg-color">預測目標內容</header>
+                  <div class="content">
+                    <p v-for="(text, idx) in setSync.methodOfPrediction" :key="idx" v-if="setSync.methodOfPrediction.length &gt; 0">{{text}}</p>
+                  </div>
+                </section>
+                <!-- 預測目標內容-->
+                <section class="section configuration attention yellowD">
+                  <header class="head bg-color">預測目標內容</header>
+                  <div class="content">
+                    <p v-for="(text, idx) in guesSync.methodOfPrediction" :key="idx" v-if="guesSync.methodOfPrediction.length &gt; 0">{{text}}</p>
+                  </div>
+                </section>
+              </aside>
+            </div>
+            <div class="row wrapper flex cusAI">
+              <main class="col-sm-8 col-xs-12">
+                <section class="section tab">
+                  <header class="head">
+                    <ul class="nav nav-tabs">
+                      <!-- 預測分析Tab-->
+                      <li class="active"><a href="#tab-1" data-toggle="tab">預測分析</a></li>
+                      <!-- ROC評估Tab-->
+                      <li><a href="#tab-2" data-toggle="tab">ROC評估</a></li>
+                      <!-- 訓練及測試資料Tab-->
+                      <li><a href="#tab-3" data-toggle="tab">訓練及測試資料</a></li>
+                    </ul>
+                  </header>
+                  <div class="tab-content">
+                    <!-- 預測結論-->
+                    <div class="tab-pane fade in active" id="tab-1">
+                      <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
+                      <p class="title bottom-line">預測結論</p>
+                      <div class="content col-sm-8 col-xs-12">
+                        <p v-for="(text, idx) in predictiveEffect" :key="idx">{{text}}</p><br/>
+                        <div class="guessContent"><span class="fz16">預測結論：</span><span id="guessRlt" v-for="(text, idx) in predictionConclusion" :key="idx">{{text.split('︰')[1]}}</span><span class="icon fail" style="background: url(dist/images/fail.svg);" v-if="predictionConclusion.length &gt; 0"></span></div>
+                      </div>
+                      <!-- 統計檢定-->
+                      <div class="col-xs-12">
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-1" data-toggle="collapse"><span>統計檢定</span><span class="arrow"></span></a></p>
+                        <div class="content collapse" id="barCollapse-1">
+                          <p v-for="(text, idx) in statisticalVerify" :key="idx">{{text}}</p>
+                        </div>
+                      </div>
+                      <!-- 回測結果統計表-->
+                      <div class="col-xs-12">
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-2" data-toggle="collapse"><span>回測結果統計表</span><span class="arrow"></span></a></p>
+                        <div class="content collapse" id="barCollapse-2">
+                          <div class="table-responsive" v-if="backTestRltColumns.length &gt; 0">
+                            <table class="dataTable table">
+                              <thead>
+                                <tr>
+                                  <th v-for="(key, idx) in backTestRltColumns" :key="idx">{{key}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr v-for="(row, idx) in backTestRlt" :key="idx">
+                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestRlt[idx][key]}}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- 回測結果資料表-->
+                      <div class="col-xs-12">
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-3" data-toggle="collapse"><span>回測結果資料表</span><span class="arrow"></span></a></p>
+                        <div class="content collapse" id="barCollapse-3">
+                          <div class="table-responsive" v-if="dataSheetColumns.length &gt; 0">
+                            <table class="dataTable table">
+                              <thead>
+                                <tr>
+                                  <th v-for="(key, idx) in dataSheetColumns" :key="idx">{{key}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr v-for="(row, idx) in backTestDataSheet" :key="idx">
+                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestDataSheet[idx][key]}}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- ROC評估-->
+                    <div class="tab-pane fade" id="tab-2">
+                      <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
+                      <div class="col-xs-12" id="rocCategory">
+                        <div class="table-responsive" v-if="rocColumns.length &gt; 0">
+                          <table class="dataTable table">
+                            <thead>
+                              <tr>
+                                <th v-for="(key, idx) in rocColumns" :key="idx">{{key}}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr v-for="(row, idx) in filterRoc" :key="idx">
+                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterRoc[idx][key]}}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- 訓練及測試資料-->
+                    <div class="tab-pane fade" id="tab-3">
+                      <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
+                      <div class="col-xs-12" id="trainingMaterialsCategory">
+                        <div class="table-responsive" v-if="trainingColumns.length &gt; 0">
+                          <table class="dataTable table">
+                            <thead>
+                              <tr>
+                                <th v-for="(key, idx) in trainingColumns" :key="idx">{{key}}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr v-for="(row, idx) in filterTrainingMaterials" :key="idx">
+                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterTrainingMaterials[idx][key]}}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </main>
+              <aside class="col-sm-4 col-xs-12">
+                <!-- 備註-->
+                <section class="section configuration">
+                  <header class="head bg-color">備註</header>
+                  <div class="content">
+                    <ol>
+                      <li>本系統適合之投資者為預計持有投資部位超過6個月者。</li>
+                      <li>本系統所使用之股價資料為還原權值之股價。</li>
+                      <li>股價資料為月平均價格。</li>
+                      <li>每週六進行資料更新。</li>
+                    </ol>
+                  </div>
+                </section>
+              </aside>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </body>
+</html>
