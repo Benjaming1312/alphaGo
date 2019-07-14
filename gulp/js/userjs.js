@@ -53,6 +53,9 @@ function sideActive () {{
 
 function hideLoading () {
   $('.main-loading').fadeOut(1000)
+  setTimeout(() => {
+    $('.main-loading').remove()
+  }, 1500)
 }
 
 $(function () {

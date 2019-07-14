@@ -213,7 +213,8 @@
                       <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
                       <p class="title bottom-line">預測結論</p>
                       <div class="content col-sm-8 col-xs-12">
-                        <div class="guessContent"><span class="fz16">預測結論：</span><span id="guessRlt" v-for="(text, idx) in predictionConclusion" :key="idx">{{text.split('︰')[1]}}</span><span class="icon fail" style="background: url(dist/images/fail.svg);" v-if="predictionConclusion.length &gt; 0"></span></div>
+                        <div class="guessContent"><span class="fz16">預測結論：</span><span id="guessRlt" v-for="(text, idx) in predictionConclusion" :key="idx">{{text.split('︰')[1]}}
+                            <template v-if="idx === predictionConclusion.length - 1"><span class="icon fail" style="background: url(dist/images/fail.svg);" v-if="predictionConclusion.length &gt; 0"></span></template></span></div>
                       </div>
                       <!-- 統計檢定-->
                       <div class="col-xs-12">
@@ -255,7 +256,7 @@
                     <!-- ROC評估-->
                     <div class="tab-pane fade" id="tab-2">
                       <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
-                      <div class="col-xs-12">
+                      <div class="col-xs-12 lineChart">
                         <!-- ROC 圖表-->
                         <div id="chartContent"></div>
                       </div>

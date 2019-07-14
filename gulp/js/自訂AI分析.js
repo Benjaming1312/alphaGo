@@ -372,8 +372,12 @@ $(function () {
         // 設定類型
         // const category = this.rocColumns[0]
         chartOptions.xAxis.categories = []
-        chartOptions.yAxis.title = this.rocColumns[0]
-        chartOptions.xAxis.title = this.rocColumns[1]
+        chartOptions.yAxis.title = {
+          text: this.rocColumns[1]
+        }
+        chartOptions.xAxis.title = {
+          text: this.rocColumns[0]
+        }
 
         const labelWidth = 70 // 字元寬度
         // 設定每隔間距
@@ -385,20 +389,12 @@ $(function () {
           data: [],
           showInLegend: false
         }
-        chartOptions.series = []
+        chartOptions.series = [seriesTemp]
 
-        // Create series
-        this.rocColumns.forEach((key, idx) => {
-          const newObj = _.cloneDeep(seriesTemp)
-          newObj.name = key
-          chartOptions.series.push(newObj)
+        this.roc.forEach(data => {
+          chartOptions.series[0].data.push([data[chartOptions.xAxis.title.text], data[chartOptions.yAxis.title.text]])
         })
 
-        chartOptions.series.forEach(series => {
-          this.roc.forEach(data => {
-            series.data.push(data[series.name])
-          })
-        })
 
         var myChart = Highcharts.chart('chartContent', chartOptions)
       }
