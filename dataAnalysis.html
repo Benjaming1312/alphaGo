@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dist/css/usercss.css"/>
+    <link rel="stylesheet" href="./dist/css/usercss.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="dist/js/userjs.js"></script>
+    <script src="./dist/js/userjs.js"></script>
     <title>數據圖表分析
     </title>
   </head>
@@ -66,9 +66,17 @@
         <!-- 右側內文-->
         <article class="col-sm-9 col-xs-12 main">
           <div class="purple" id="dataAnalysis">
+            <div class="notify notify" :class="loading ? 'show-notify' : 'hide-notify'">{{notifyMsg}}</div>
             <div class="row">
               <!-- Banner-->
-              <div class="col-xs-12 banner"><img class="img-responsive center-block" src="dist/images/banner-7.png" alt=""/></div>
+              <div class="col-xs-12 banner cusAI dataAnalysis">
+                <div class="content" style="background: url(dist/images/dataAnalysis-bg.svg);">
+                  <div class="title">
+                    <h2 class="text-purple">數據圖表分析</h2>
+                    <h3 class="text-grey">Data Analysis</h3>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 內容-->
             <div class="row wrapper">
@@ -77,13 +85,6 @@
                 <section class="section configuration">
                   <header class="head bg-color">設定歷史數據分析條件</header>
                   <div class="content">
-                    <!-- 圖表呈現方式-->
-                    <div class="form-group">
-                      <label class="title" for="chartType">圖表呈現方式</label>
-                      <select class="form-control" id="chartType" name="chartType" v-model="analysisOpt.selectChart">
-                        <option value="多圖並列分析">多圖並列分析</option>
-                      </select>
-                    </div>
                     <!-- 產業類別-->
                     <div class="form-group">
                       <label class="title" for="category">產業類別</label>
@@ -112,7 +113,7 @@
                     <div class="form-group">
                       <label class="title" for="perYear">資料統計年度</label>
                       <select class="form-control" id="perYear" name="perYear" v-model="analysisOpt.durTime">
-                        <option value="最近1年">最近1年</option>
+                        <option v-for="(data, idx) in durTimeOpts" :value="data" :key="idx">{{data}}</option>
                       </select>
                     </div>
                     <!-- 指標類別-->
@@ -135,26 +136,22 @@
                     <div class="form-group">
                       <label class="title" for="dataType">資料型態 <span class="unit">(單位%)</span></label>
                       <select class="form-control" id="dataType" name="dataType" v-model="analysisOpt.dataOption">
-                        <option value="當期值">當期值</option>
+                        <option v-for="(data, idx) in dataOptionOpts" :value="data" :key="idx">{{data}}</option>
                       </select>
                     </div>
                     <!-- 起始日期-->
                     <div class="form-group">
                       <label class="title" for="startTime">起始日期</label>
-                      <select class="form-control" id="startTime" name="startTime" v-model="analysisOpt.startTime">
-                        <option value="2012/01">2012/01</option>
-                      </select>
+                      <input class="form-control" id="startTime" name="startTime" type="date" v-model="analysisOpt.startTime"/>
                     </div>
                     <!-- 結束日期-->
                     <div class="form-group">
                       <label class="title" for="endTime">結束日期</label>
-                      <select class="form-control" id="endTime" name="endTime" v-model="analysisOpt.endTime">
-                        <option value="2019/06">2019/06</option>
-                      </select>
+                      <input class="form-control" id="endTime" name="endTime" type="date" v-model="analysisOpt.endTime"/>
                     </div>
                     <!-- 輸入條件-->
                     <div class="btn-group">
-                      <button class="btn submit-btn" @click="submit">輸入條件</button>
+                      <button class="btn submit-btn" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>輸入條件</button>
                       <button class="btn submit-btn" @click="clear">清除條件</button>
                     </div>
                   </div>

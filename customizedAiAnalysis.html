@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dist/css/usercss.css"/>
+    <link rel="stylesheet" href="./dist/css/usercss.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="dist/js/userjs.js"></script>
+    <script src="./dist/js/userjs.js"></script>
     <title>自訂AI分析
     </title>
   </head>
@@ -66,9 +66,17 @@
         <!-- 右側內文-->
         <article class="col-sm-9 col-xs-12 main">
           <div class="yellowC" id="cusAiAnalysis">
+            <div class="notify notify" :class="(loading || sendLoading) ? 'show-notify' : 'hide-notify'">{{notifyMsg}}</div>
             <div class="row">
               <!-- Banner-->
-              <div class="col-xs-12 banner"><img class="img-responsive center-block" src="dist/images/banner-6.png" alt=""/></div>
+              <div class="col-xs-12 banner cusAI">
+                <div class="content" style="background: url(dist/images/cusAI-bg.svg);">
+                  <div class="title">
+                    <h2 class="text-purple">自訂AI分析</h2>
+                    <h3 class="text-grey">Customized AI Analysis</h3>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 內容-->
             <div class="row wrapper flex cusAI">
@@ -103,9 +111,7 @@
                     <!-- 股票買進日期-->
                     <div class="form-group">
                       <label class="title" for="buyTime">股票買進日期</label>
-                      <select class="form-control" id="buyTime" name="buyTime" v-model="setOpt.buyTime">
-                        <option value="2019/06">2019/06</option>
-                      </select>
+                      <input class="form-control" id="buyTime" name="buyTime" type="date" v-model="setOpt.buyTime"/>
                     </div>
                     <!-- 股票持有期間-->
                     <div class="form-group">
@@ -119,7 +125,7 @@
                       <label class="title" for="ror">預估報酬率大於</label>
                       <input class="form-control" id="ror" type="number" value="50"/>
                     </div>
-                    <button class="btn" id="submit" @click="submit('setSync')">開始分析</button>
+                    <button class="btn" id="submit" @click="submit('setSync')"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                   </div>
                 </section>
               </aside>
@@ -168,9 +174,9 @@
                     </div>
                     <!-- 輸入條件-->
                     <div class="btn-group">
-                      <button class="btn" id="send" @click="send">輸入條件</button>
+                      <button class="btn" id="send" @click="send"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
                       <button class="btn" id="clear" @click="clear">清除條件</button>
-                      <button class="btn" id="submit" @click="submit('guesSync')">開始分析</button>
+                      <button class="btn" id="submit" @click="submit('guesSync')"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                     </div>
                   </div>
                 </section>
@@ -181,13 +187,6 @@
                   <header class="head bg-color">預測目標內容</header>
                   <div class="content">
                     <p v-for="(text, idx) in setSync.methodOfPrediction" :key="idx" v-if="setSync.methodOfPrediction.length &gt; 0">{{text}}</p>
-                  </div>
-                </section>
-                <!-- 預測目標內容-->
-                <section class="section configuration attention yellowD">
-                  <header class="head bg-color">預測目標內容</header>
-                  <div class="content">
-                    <p v-for="(text, idx) in guesSync.methodOfPrediction" :key="idx" v-if="guesSync.methodOfPrediction.length &gt; 0">{{text}}</p>
                   </div>
                 </section>
               </aside>
@@ -211,7 +210,6 @@
                       <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
                       <p class="title bottom-line">預測結論</p>
                       <div class="content col-sm-8 col-xs-12">
-                        <p v-for="(text, idx) in predictiveEffect" :key="idx">{{text}}</p><br/>
                         <div class="guessContent"><span class="fz16">預測結論：</span><span id="guessRlt" v-for="(text, idx) in predictionConclusion" :key="idx">{{text.split('︰')[1]}}</span><span class="icon fail" style="background: url(dist/images/fail.svg);" v-if="predictionConclusion.length &gt; 0"></span></div>
                       </div>
                       <!-- 統計檢定-->
@@ -221,40 +219,29 @@
                           <p v-for="(text, idx) in statisticalVerify" :key="idx">{{text}}</p>
                         </div>
                       </div>
-                      <!-- 回測結果統計表-->
+                      <!-- 預測效果-->
                       <div class="col-xs-12">
-                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-2" data-toggle="collapse"><span>回測結果統計表</span><span class="arrow"></span></a></p>
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-2" data-toggle="collapse"><span>預測效果</span><span class="arrow"></span></a></p>
                         <div class="content collapse" id="barCollapse-2">
-                          <div class="table-responsive" v-if="backTestRltColumns.length &gt; 0">
-                            <table class="dataTable table">
-                              <thead>
-                                <tr>
-                                  <th v-for="(key, idx) in backTestRltColumns" :key="idx">{{key}}</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr v-for="(row, idx) in backTestRlt" :key="idx">
-                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestRlt[idx][key]}}</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
+                          <template v-if="predictiveEffect.length &gt; 0">
+                            <p v-for="(text, idx) in predictiveEffect" :key="idx">{{text}}</p>
+                          </template>
                         </div>
                       </div>
-                      <!-- 回測結果資料表-->
+                      <!-- 預測正確率測試資料-->
                       <div class="col-xs-12">
-                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-3" data-toggle="collapse"><span>回測結果資料表</span><span class="arrow"></span></a></p>
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-3" data-toggle="collapse"><span>預測正確率測試資料</span><span class="arrow"></span></a></p>
                         <div class="content collapse" id="barCollapse-3">
-                          <div class="table-responsive" v-if="dataSheetColumns.length &gt; 0">
+                          <div class="table-responsive" v-if="predictiveAccuracy.length &gt; 0">
                             <table class="dataTable table">
                               <thead>
                                 <tr>
-                                  <th v-for="(key, idx) in dataSheetColumns" :key="idx">{{key}}</th>
+                                  <th v-for="(key, idx) in predictiveAccuracyColumns" :key="idx">{{key}}</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr v-for="(row, idx) in backTestDataSheet" :key="idx">
-                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestDataSheet[idx][key]}}</td>
+                                <tr v-for="(row, idx) in predictiveAccuracy" :key="idx">
+                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{predictiveAccuracy[idx][key]}}</td>
                                 </tr>
                               </tbody>
                             </table>
@@ -265,21 +252,9 @@
                     <!-- ROC評估-->
                     <div class="tab-pane fade" id="tab-2">
                       <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
-                      <div class="col-xs-12" id="rocCategory">
-                        <div class="table-responsive" v-if="rocColumns.length &gt; 0">
-                          <table class="dataTable table">
-                            <thead>
-                              <tr>
-                                <th v-for="(key, idx) in rocColumns" :key="idx">{{key}}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr v-for="(row, idx) in filterRoc" :key="idx">
-                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterRoc[idx][key]}}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                      <div class="col-xs-12">
+                        <!-- ROC 圖表-->
+                        <div id="chartContent"></div>
                       </div>
                     </div>
                     <!-- 訓練及測試資料-->

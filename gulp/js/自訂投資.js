@@ -46,6 +46,7 @@ $(function () {
     el: '#customized',
     data: {
       loading: false,
+      sendLoading: false,
       category: [],
       categoryOri: [],
       druDate: [],
@@ -57,10 +58,11 @@ $(function () {
       stopLossColumns: [], // 最新符合停利停損條件表頭
       latestSelect: '全部上市櫃股票', // 最新買進條件股票產業類別
       stopLossSelect: '全部上市櫃股票', // 最新符合停利停損條件產業類別
+      notifyMsg: '資料讀取中，請稍後',
       // 設定歷史數據分析條件
       historyOpt: {
-        startTime: '2019/06', // 起始日期
-        endTime: '2019/06', // 結束日期
+        startTime: '2019-06-11', // 起始日期
+        endTime: '2019-07-11', // 結束日期
         minMonth: 24, // 股票最小持有期間
         maxMonth: 24, // 股票最大持有期間
         stopLoss: -20, // 設定停損報酬率
@@ -184,6 +186,25 @@ $(function () {
         const rlt = this.unit.filter(data => data['項目'] === info)
         return rlt.length > 0 ? rlt[0]['單位'] : ''
       },
+      /* 輸入條件 */
+      send () {
+        this.sendLoading = true
+        const rlt = {
+          historyOpt: this.historyOpt, //歷史數據分析條件
+          callOpt: this.historyOpt.setCall ? this.callOpt : null, // 每月買進
+          putOpt: this.historyOpt.setPut ? this.putOpt : null // 賣出條件
+        }
+        console.warn('send info', rlt)
+        
+        if (env) {
+          setTimeout(() => {
+            this.sendLoading = false
+          }, 3000)
+        }
+        else {
+          this.sendLoading = false
+        }
+      },
       /* 開始分析 */
       submit () {
         this.loading = true
@@ -216,7 +237,14 @@ $(function () {
            this.renderChart() // 畫Chart
            this.renderTable() // 畫圖表
 
-           this.loading = false
+           if (env) {
+              setTimeout(() => {
+                this.loading = false
+              }, 3000)
+            }
+            else {
+              this.loading = false
+            }
          })
       },
       /**

@@ -1,3 +1,5 @@
+var env = true
+
 function is (name) {
   return $(name).is(name)
 }
@@ -37,7 +39,9 @@ function sideActive () {{
   if (!rlt) {
     $('.side.panel-group ul a').each(function () {
       if (url.indexOf($(this).attr('href')) >= 0) {
-        $(this).parents('.panel').find('p > a').click()
+        if ($(window).width() > 768) {
+          $(this).parents('.panel').find('p > a').click()
+        }
         $(this).addClass('active')
       }
     })
@@ -48,7 +52,7 @@ function sideActive () {{
 }}
 
 $(function () {
-  sideActive()
+  sideActive() // 子選單自動打開
 
   // 左側縮合 addEventListener
   $('.toggle-side a').click(function () {
@@ -58,10 +62,9 @@ $(function () {
   if ($(window).width() < 768) {
     toggleSide()
 
-    setTimeout(() => {
-      $('.collapse.in').each(function () {
-        $(this).hide()
-      })
-    }, 1000)
+    // 備註放到最後面
+    $('.row.wrapper').append(`<div class="col-xs-12 memoAppend"></div>`)
+    $('.memo').appendTo('.memoAppend')
   }
+
 })

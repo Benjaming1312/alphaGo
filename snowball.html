@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dist/css/usercss.css"/>
+    <link rel="stylesheet" href="./dist/css/usercss.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="dist/js/userjs.js"></script>
+    <script src="./dist/js/userjs.js"></script>
     <title>雪球存股投資模型
     </title>
   </head>
@@ -65,13 +65,29 @@
         </aside>
         <!-- 右側內文-->
         <article class="col-sm-9 col-xs-12 main">
-          <div class="green">
+          <div class="green" id="snow">
+            <div class="notify notify" :class="loading ? 'show-notify' : 'hide-notify'">{{notifyMsg}}</div>
             <div class="row">
               <!-- Banner-->
-              <div class="col-xs-12 banner"><img class="img-responsive center-block" src="/dist/images/banner-3.png" alt=""/></div>
+              <div class="col-xs-12 banner snow">
+                <div class="content" style="background: url(/dist/images/snow-bg.svg);">
+                  <div class="title">
+                    <h2 class="text-green">雪球存股投資觀念</h2>
+                    <h3 class="text-grey">Snowball Stock Investment</h3>
+                  </div>
+                  <ol>
+                    <li>
+                       低本益比︰約翰自稱為低本益比投資者，在掌管溫莎基金31年期間，總報酬率為5546.5%。低本益比策<br/>略給了雙重邊際，一是向上有了大幅增值的獲利邊際，二是向下有了抵擋風險的安全邊際。</li>
+                    <li>
+                       股利收益有保障︰股息殖利率指的是股利占股價的百分比。低本益比的好處之一就是可以享受高股利的分<br/>紅，低本益比及高股息率呈現正相關，而股利分紅和股價為高度相關。</li>
+                    <li>
+                       基本面好︰低本益比股策略除了重視低股價，亦須要考慮公司基本面情形，常用的財務數據為現金流、股<br/>東權益報酬率、營業利益率、稅前淨利率等。</li>
+                  </ol>
+                </div>
+              </div>
             </div>
             <!-- 內容-->
-            <div class="row wrapper" id="snow">
+            <div class="row wrapper">
               <aside class="col-sm-4 col-xs-12">
                 <!-- 設定歷史數據分析條件-->
                 <section class="section configuration">
@@ -93,9 +109,7 @@
                     <!-- 股票買進結束日期-->
                     <div class="form-group">
                       <label class="title" for="endTime">股票買進結束日期</label>
-                      <select class="form-control" id="endTime" name="endTime">
-                        <option value="all">2019/06</option>
-                      </select>
+                      <input class="form-control" id="endTime" name="endTime" type="date" v-model="setOpts.endTime"/>
                     </div>
                     <!-- 股票最小持有期間-->
                     <div class="form-inline">
@@ -124,7 +138,7 @@
                         <input id="curCall" type="checkbox" v-model="setOpts.setCall"/>達到買進條件，每月持續買進
                       </label>
                     </div>
-                    <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit">開始分析</button>
+                    <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                   </div>
                 </section>
                 <!-- 備註-->

@@ -30,10 +30,11 @@ $(function () {
       stopLossColumns: [], // 最新符合停利停損條件表頭
       latestSelect: '全部上市櫃股票', // 最新買進條件股票產業類別
       stopLossSelect: '全部上市櫃股票', // 最新符合停利停損條件產業類別
+      notifyMsg: '資料讀取中，請稍後',
       // 設定歷史數據分析條件
       setOpts: {
         company: '全部上市櫃股票', // 產業類別
-        endTime: '2019/06', // 股票買進結束日期
+        endTime: '2019-07-11', // 股票買進結束日期
         druTime: 24, // 股票最大持有期間
         stopCall: false, // 設定停損條件
         setPut: false, // 設定賣出條件
@@ -106,6 +107,7 @@ $(function () {
       /* 開始分析 */
       submit () {
         this.loading = true
+        console.warn('send option', this.setOpts)
 
         const getBackTestRlt = this.getBackTestRlt() // 取得回測結果統計表
         const getBackTestDataSheet = this.getBackTestDataSheet() // 取得回測結果資料表
@@ -129,7 +131,14 @@ $(function () {
            this.renderChart() // 畫Chart
            this.renderTable() // 畫圖表
 
-           this.loading = false
+            if (env) {
+              setTimeout(() => {
+                this.loading = false
+              }, 3000)
+            }
+            else {
+              this.loading = false
+            }
          })
 
       },

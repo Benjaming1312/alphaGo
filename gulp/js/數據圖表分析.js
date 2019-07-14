@@ -12,7 +12,6 @@ let httpGetCfg = { // HTTP Get config
 
 // 數據分析Temp
 const analyTemp = {
-  selectChart: '多圖並列分析', // 圖表呈現方式
   companyCategory: '全部上市櫃股票', // 產業類別
   companyName: '', // 公司名稱
   companyNum: '', // 公司代號
@@ -21,8 +20,8 @@ const analyTemp = {
   categoryIdx: '現金流量', // 指標類別
   categoryItem: '年度投資活動現金流量', // 項目
   dataOption: '當期值', // 資料型態
-  startTime: '2012/01', // 起始日期
-  endTime: '2019/06' // 結束日期
+  startTime: '2012-01-01', // 起始日期
+  endTime: '2019-06-11' // 結束日期
 }
 
 // 顏色模板
@@ -50,6 +49,7 @@ $(function () {
       chartData: [],
       dataColumns: [],
       companySelect: '',
+      notifyMsg: '資料讀取中，請稍後',
       // 預測因素
       analysisOpt: _.cloneDeep(analyTemp),
     },
@@ -86,6 +86,43 @@ $(function () {
       },
       legend () {
         return this.dataColumns.filter(key => (key !== '公司名稱') && key !== '日期')
+      },
+      /**
+       * 資料統計年度選項
+       */
+      durTimeOpts () {
+        let rlt = []
+        switch (this.analysisOpt.dataType) {
+          case '財報年報':
+            rlt = ['最近1年', '最近2年', '最近3年', '最近4年', '最近5年']
+            break
+          case '財報季報':
+            rlt = ['最近1季', '最近2季', '最近3季', '最近4季']
+            break
+          case '價值評估':
+          case '籌碼面':
+          case '技術面':
+            rlt = ['最近1月', '最近2月', '最近3月', '最近4月', '最近5月', '最近6月']
+            break
+        }
+        return rlt
+      },
+      /**
+       * 資料型態選項
+       */
+      dataOptionOpts () {
+        let rlt = []
+        switch (this.analysisOpt.durTime) {
+          case '最近1年':
+          case '最近1季':
+          case '最近1月':
+            rlt = ['當期值']
+            break
+          default:
+            rlt = ['平均值', '合計值']
+            break
+        }
+        return rlt
       }
     },
     methods: {
@@ -95,11 +132,20 @@ $(function () {
       },
       submit () {
         this.loading = true
+        console.warn('option', this.analysisOpt)
+        
         this.getData()
           .then(() => {
             this.renderChart()
 
-            this.loading = false
+            if (env) {
+							setTimeout(() => {
+								this.loading = false
+							}, 3000)
+						}
+						else {
+							this.loading = false
+						}
           })
       },
       clear () {
@@ -189,9 +235,13 @@ $(function () {
     watch: {
       'analysisOpt.dataType' () {
         this.analysisOpt.categoryIdx = this.indexCategory[0]
+        this.analysisOpt.durTime = this.durTimeOpts[0]
       },
       'analysisOpt.categoryIdx' () {
         this.analysisOpt.categoryItem = this.itemCategory[0]
+      },
+      'analysisOpt.durTime' () {
+        this.analysisOpt.dataOption = this.dataOptionOpts[0]
       },
       'companyInfo' (val) {
         if (val.length !== 0) {

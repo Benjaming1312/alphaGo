@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dist/css/usercss.css"/>
+    <link rel="stylesheet" href="./dist/css/usercss.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="dist/js/userjs.js"></script>
+    <script src="./dist/js/userjs.js"></script>
     <title>巴菲特投資模型
     </title>
   </head>
@@ -65,158 +65,228 @@
         </aside>
         <!-- 右側內文-->
         <article class="col-sm-9 col-xs-12 main">
-          <div class="row">
-            <!-- Banner-->
-            <div class="col-xs-12 banner"><img class="img-responsive center-block" src="dist/images/banner-1.png" alt=""/></div>
-          </div>
-          <!-- 內容-->
-          <div class="row wrapper" id="buffet">
-            <aside class="col-sm-4 col-xs-12">
-              <!-- 設定歷史數據分析條件-->
-              <section class="section configuration">
-                <header class="head bg-color">設定歷史數據分析條件</header>
-                <div class="content">
-                  <!-- 產業類別-->
-                  <div class="form-group">
-                    <label class="title" for="category">產業類別</label>
-                    <select class="form-control" id="category" name="category" v-model="setOpts.company">
-                      <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
-                    </select>
+          <div id="buffet">
+            <div class="notify notify" :class="loading ? 'show-notify' : 'hide-notify'">{{notifyMsg}}</div>
+            <div class="row">
+              <!-- Banner-->
+              <div class="col-xs-12 banner buffet">
+                <div class="content" style="background: url(./dist/images/buffet-bg.svg);">
+                  <div class="title">
+                    <h2 class="text-purple">巴菲特投資觀念</h2>
+                    <h3 class="text-grey">Warren Buffet Investments </h3>
                   </div>
-                  <!-- 股票買進起始日期-->
-                  <div class="form-inline">
-                    <div class="form-group">
-                      <label class="title" for="startTime">股票買進起始日期<span id="startTime">：1999/01</span></label>
-                    </div>
-                  </div>
-                  <!-- 股票買進結束日期-->
-                  <div class="form-group">
-                    <label class="title" for="endTime">股票買進結束日期</label>
-                    <select class="form-control" id="endTime" name="endTime" v-model="setOpts.endTime">
-                      <option value="2019/06">2019/06</option>
-                    </select>
-                  </div>
-                  <!-- 股票最小持有期間-->
-                  <div class="form-inline">
-                    <div class="form-group">
-                      <label class="title" for="minMonth">股票最小持有期間<span id="minMonth">：３月</span></label>
-                    </div>
-                  </div>
-                  <!-- 股票最大持有期間-->
-                  <div class="form-group">
-                    <label class="title" for="maxMonth">股票最大持有期間<span class="uint">（單位：月）</span></label>
-                    <select class="form-control" id="maxMonth" name="maxMonth" v-model="setOpts.druTime">
-                      <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
-                    </select>
-                  </div>
-                  <div class="form-group checkbox">
-                    <!-- 設定停損條件-->
-                    <label for="setStop">
-                      <input id="setStop" type="checkbox" v-model="setOpts.stopCall"/>設定停損條件
-                    </label>
-                    <!-- 設定賣出條件-->
-                    <label for="setPut">
-                      <input id="setPut" type="checkbox" v-model="setOpts.setPut"/>設定賣出條件
-                    </label>
-                    <!-- 達到買進條件，每月持續買進-->
-                    <label for="curCall">
-                      <input id="curCall" type="checkbox" v-model="setOpts.setCall"/>達到買進條件，每月持續買進
-                    </label>
-                  </div>
-                  <!-- 設定停損報酬率-->
-                  <div class="form-group">
-                    <label class="title" for="putRor">設定停損報酬率</label>
-                    <select class="form-control" id="putRor" name="putRor" v-model="setOpts.stopLoss">
-                      <option value="-20">-20</option>
-                    </select>
-                  </div>
-                  <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit">開始分析</button>
-                </div>
-              </section>
-              <!-- 備註-->
-              <section class="section configuration">
-                <header class="head bg-color">備註</header>
-                <div class="content">
                   <ol>
-                    <li>本系統適合之投資者為預計持有投資部位超過6個月者。</li>
-                    <li>本系統所使用之股價資料為還原權值之股價。</li>
-                    <li>股價資料為月平均價格。</li>
-                    <li>每週六進行資料更新。</li>
+                    <li>
+                       複利是創造財富的魔法鑰匙︰投資想產生高報酬率的兩大關鍵因素是年化報酬率與時 <br/>間，只要適當的報酬率加上足夠長的時間，即能讓複利的威力展現出來。</li>
+                    <li>
+                       買進價格擁有足夠的安全邊際︰安全邊際簡單說就是目前股票實際價格低於企業內在<br/>價值的差價，只要差價越大，安全邊際就越大。</li>
+                    <li>
+                       選擇具有長期競爭力的企業︰為了能達成持續累積複利的威力，所選擇的公司必須是<br/>經得起時間考驗，長期上具有競爭力的公司。</li>
                   </ol>
                 </div>
-              </section>
-            </aside>
-            <main class="col-sm-8 col-xs-12">
-              <section class="section">
-                <header class="head">
-                  <ul class="nav nav-tabs">
-                    <!-- 歷史數據分析Tab-->
-                    <li class="active"><a class="bg-color" href="#tab-1" data-toggle="tab">歷史數據分析</a></li>
-                    <!-- 最新符合買進條件股票Tab-->
-                    <li><a class="bg-color" href="#tab-2" data-toggle="tab">最新符合買進條件股票</a></li>
-                    <!-- 最新符合停利停損條件股票Tab-->
-                    <li><a class="bg-color" href="#tab-3" data-toggle="tab">最新符合停利停損條件股票</a></li>
-                  </ul>
-                </header>
-                <div class="tab-content">
-                  <!-- 模型效果分析-->
-                  <div class="tab-pane fade in active" id="tab-1">
-                    <!-- loading-->
-                    <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
-                    <p class="title bottom-line">模型效果分析</p>
-                    <div class="content col-sm-8 col-xs-12 analyzeText" v-if="analyzeText.length &gt; 0">
-                      <p v-for="(text, idx) in analyzeText" :key="idx">{{text.split('︰')[0]}}<span>：{{text.split('︰')[1]}}</span></p>
-                    </div>
-                    <!-- 年度分析圖表-->
-                    <div class="form-group col-sm-8 col-xs-12" id="chartType">
-                      <label class="title" for="endTime">年度分析圖表</label>
-                      <select class="form-control" id="endTime" name="endTime" v-model="selectChart">
-                        <option v-for="(data, idx) in chartType" :value="data" :key="idx">{{data}}</option>
+              </div>
+            </div>
+            <!-- 內容-->
+            <div class="row wrapper">
+              <aside class="col-sm-4 col-xs-12">
+                <!-- 設定歷史數據分析條件-->
+                <section class="section configuration">
+                  <header class="head bg-color">設定歷史數據分析條件</header>
+                  <div class="content">
+                    <!-- 產業類別-->
+                    <div class="form-group">
+                      <label class="title" for="category">產業類別</label>
+                      <select class="form-control" id="category" name="category" v-model="setOpts.company">
+                        <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
                       </select>
                     </div>
-                    <!-- Chart-->
-                    <div class="col-xs-12" id="chartContent"></div>
-                    <!-- 統計檢定-->
-                    <div class="col-xs-12">
-                      <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-1" data-toggle="collapse"><span>統計檢定</span><span class="arrow"></span></a></p>
-                      <div class="content collapse" id="barCollapse-1">
-                        <p v-for="(text, idx) in statisticalVerify" :key="idx">{{text}}</p>
+                    <!-- 股票買進起始日期-->
+                    <div class="form-inline">
+                      <div class="form-group">
+                        <label class="title" for="startTime">股票買進起始日期<span id="startTime">：1999/01</span></label>
                       </div>
                     </div>
-                    <!-- 回測結果統計表-->
-                    <div class="col-xs-12">
-                      <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-2" data-toggle="collapse"><span>回測結果統計表</span><span class="arrow"></span></a></p>
-                      <div class="content collapse" id="barCollapse-2">
-                        <div class="table-responsive" v-if="backTestRltColumns.length &gt; 0">
+                    <!-- 股票買進結束日期-->
+                    <div class="form-group">
+                      <label class="title" for="endTime">股票買進結束日期</label>
+                      <input class="form-control" id="endTime" name="endTime" type="date" v-model="setOpts.endTime"/>
+                    </div>
+                    <!-- 股票最小持有期間-->
+                    <div class="form-inline">
+                      <div class="form-group">
+                        <label class="title" for="minMonth">股票最小持有期間<span id="minMonth">：３月</span></label>
+                      </div>
+                    </div>
+                    <!-- 股票最大持有期間-->
+                    <div class="form-group">
+                      <label class="title" for="maxMonth">股票最大持有期間<span class="uint">（單位：月）</span></label>
+                      <select class="form-control" id="maxMonth" name="maxMonth" v-model="setOpts.druTime">
+                        <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
+                      </select>
+                    </div>
+                    <div class="form-group checkbox">
+                      <!-- 設定停損條件-->
+                      <label for="setStop">
+                        <input id="setStop" type="checkbox" v-model="setOpts.stopCall"/>設定停損條件
+                      </label>
+                      <!-- 設定賣出條件-->
+                      <label for="setPut">
+                        <input id="setPut" type="checkbox" v-model="setOpts.setPut"/>設定賣出條件
+                      </label>
+                      <!-- 達到買進條件，每月持續買進-->
+                      <label for="curCall">
+                        <input id="curCall" type="checkbox" v-model="setOpts.setCall"/>達到買進條件，每月持續買進
+                      </label>
+                    </div>
+                    <!-- 設定停損報酬率-->
+                    <div class="form-group">
+                      <label class="title" for="putRor">設定停損報酬率</label>
+                      <select class="form-control" id="putRor" name="putRor" v-model="setOpts.stopLoss">
+                        <option value="-20">-20</option>
+                      </select>
+                    </div>
+                    <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit"> <i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
+                  </div>
+                </section>
+                <!-- 備註-->
+                <section class="section configuration memo">
+                  <header class="head bg-color">備註</header>
+                  <div class="content">
+                    <ol>
+                      <li>本系統適合之投資者為預計持有投資部位超過6個月者。</li>
+                      <li>本系統所使用之股價資料為還原權值之股價。</li>
+                      <li>股價資料為月平均價格。</li>
+                      <li>每週六進行資料更新。</li>
+                    </ol>
+                  </div>
+                </section>
+              </aside>
+              <main class="col-sm-8 col-xs-12">
+                <section class="section">
+                  <header class="head">
+                    <ul class="nav nav-tabs">
+                      <!-- 歷史數據分析Tab-->
+                      <li class="active"><a class="bg-color" href="#tab-1" data-toggle="tab">歷史數據分析</a></li>
+                      <!-- 最新符合買進條件股票Tab-->
+                      <li><a class="bg-color" href="#tab-2" data-toggle="tab">最新符合買進條件股票</a></li>
+                      <!-- 最新符合停利停損條件股票Tab-->
+                      <li><a class="bg-color" href="#tab-3" data-toggle="tab">最新符合停利停損條件股票</a></li>
+                    </ul>
+                  </header>
+                  <div class="tab-content">
+                    <!-- 模型效果分析-->
+                    <div class="tab-pane fade in active" id="tab-1">
+                      <!-- loading-->
+                      <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
+                      <p class="title bottom-line">模型效果分析</p>
+                      <div class="content col-sm-8 col-xs-12 analyzeText" v-if="analyzeText.length &gt; 0">
+                        <p v-for="(text, idx) in analyzeText" :key="idx">{{text.split('︰')[0]}}<span>：{{text.split('︰')[1]}}</span></p>
+                      </div>
+                      <!-- 年度分析圖表-->
+                      <div class="form-group col-sm-8 col-xs-12" id="chartType">
+                        <label class="title" for="endTime">年度分析圖表</label>
+                        <select class="form-control" id="endTime" name="endTime" v-model="selectChart">
+                          <option v-for="(data, idx) in chartType" :value="data" :key="idx">{{data}}</option>
+                        </select>
+                      </div>
+                      <!-- Chart-->
+                      <div class="col-xs-12" id="chartContent"></div>
+                      <!-- 統計檢定-->
+                      <div class="col-xs-12">
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-1" data-toggle="collapse"><span>統計檢定</span><span class="arrow"></span></a></p>
+                        <div class="content collapse" id="barCollapse-1">
+                          <p v-for="(text, idx) in statisticalVerify" :key="idx">{{text}}</p>
+                        </div>
+                      </div>
+                      <!-- 回測結果統計表-->
+                      <div class="col-xs-12">
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-2" data-toggle="collapse"><span>回測結果統計表</span><span class="arrow"></span></a></p>
+                        <div class="content collapse" id="barCollapse-2">
+                          <div class="table-responsive" v-if="backTestRltColumns.length &gt; 0">
+                            <table class="dataTable table">
+                              <thead>
+                                <tr>
+                                  <th v-for="(key, idx) in backTestRltColumns" :key="idx">{{key}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr v-for="(row, idx) in backTestRlt" :key="idx">
+                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestRlt[idx][key]}}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- 回測結果資料表-->
+                      <div class="col-xs-12">
+                        <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-3" data-toggle="collapse"><span>回測結果資料表</span><span class="arrow"></span></a></p>
+                        <div class="content collapse" id="barCollapse-3">
+                          <div class="table-responsive" v-if="dataSheetColumns.length &gt; 0">
+                            <table class="dataTable table">
+                              <thead>
+                                <tr>
+                                  <th v-for="(key, idx) in dataSheetColumns" :key="idx">{{key}}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr v-for="(row, idx) in backTestDataSheet" :key="idx">
+                                  <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestDataSheet[idx][key]}}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- 最新符合買進條件股票-->
+                    <div class="tab-pane fade" id="tab-2">
+                      <!-- loading-->
+                      <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
+                      <div class="form-group col-sm-8 col-xs-12">
+                        <label class="title" for="tableCategory">產業類別</label>
+                        <select class="form-control" id="tableCategory" name="tableCategory" v-model="latestSelect">
+                          <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
+                        </select>
+                      </div>
+                      <div class="col-xs-12" id="latestCategory">
+                        <div class="table-responsive" v-if="latestBuyColumns.length &gt; 0">
                           <table class="dataTable table">
                             <thead>
                               <tr>
-                                <th v-for="(key, idx) in backTestRltColumns" :key="idx">{{key}}</th>
+                                <th v-for="(key, idx) in latestBuyColumns" :key="idx">{{key}}</th>
                               </tr>
                             </thead>
                             <tbody>
-                              <tr v-for="(row, idx) in backTestRlt" :key="idx">
-                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestRlt[idx][key]}}</td>
+                              <tr v-for="(row, idx) in filterLatestSheet" :key="idx">
+                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterLatestSheet[idx][key]}}</td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
                       </div>
                     </div>
-                    <!-- 回測結果資料表-->
-                    <div class="col-xs-12">
-                      <p class="chart-collapse"><a class="collapse-href" href="#barCollapse-3" data-toggle="collapse"><span>回測結果資料表</span><span class="arrow"></span></a></p>
-                      <div class="content collapse" id="barCollapse-3">
-                        <div class="table-responsive" v-if="dataSheetColumns.length &gt; 0">
+                    <!-- 最新符合停利停損條件股票-->
+                    <div class="tab-pane fade" id="tab-3">
+                      <!-- loading-->
+                      <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
+                      <div class="form-group col-sm-8 col-xs-12">
+                        <label class="title" for="tableCategory">產業類別</label>
+                        <select class="form-control" id="tableCategory" name="tableCategory" v-model="stopLossSelect">
+                          <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
+                        </select>
+                      </div>
+                      <div class="col-xs-12" id="stopLossCategory">
+                        <div class="table-responsive" v-if="stopLossColumns.length &gt; 0">
                           <table class="dataTable table">
                             <thead>
                               <tr>
-                                <th v-for="(key, idx) in dataSheetColumns" :key="idx">{{key}}</th>
+                                <th v-for="(key, idx) in stopLossColumns" :key="idx">{{key}}</th>
                               </tr>
                             </thead>
                             <tbody>
-                              <tr v-for="(row, idx) in backTestDataSheet" :key="idx">
-                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{backTestDataSheet[idx][key]}}</td>
+                              <tr v-for="(row, idx) in filterStopLoss" :key="idx">
+                                <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterStopLoss[idx][key]}}</td>
                               </tr>
                             </tbody>
                           </table>
@@ -224,63 +294,9 @@
                       </div>
                     </div>
                   </div>
-                  <!-- 最新符合買進條件股票-->
-                  <div class="tab-pane fade" id="tab-2">
-                    <!-- loading-->
-                    <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
-                    <div class="form-group col-sm-8 col-xs-12">
-                      <label class="title" for="tableCategory">產業類別</label>
-                      <select class="form-control" id="tableCategory" name="tableCategory" v-model="latestSelect">
-                        <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
-                      </select>
-                    </div>
-                    <div class="col-xs-12" id="latestCategory">
-                      <div class="table-responsive" v-if="latestBuyColumns.length &gt; 0">
-                        <table class="dataTable table">
-                          <thead>
-                            <tr>
-                              <th v-for="(key, idx) in latestBuyColumns" :key="idx">{{key}}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr v-for="(row, idx) in filterLatestSheet" :key="idx">
-                              <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterLatestSheet[idx][key]}}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 最新符合停利停損條件股票-->
-                  <div class="tab-pane fade" id="tab-3">
-                    <!-- loading-->
-                    <div class="loading" v-if="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>
-                    <div class="form-group col-sm-8 col-xs-12">
-                      <label class="title" for="tableCategory">產業類別</label>
-                      <select class="form-control" id="tableCategory" name="tableCategory" v-model="stopLossSelect">
-                        <option v-for="(data, idx) in category" :value="data" :key="idx">{{data}}</option>
-                      </select>
-                    </div>
-                    <div class="col-xs-12" id="stopLossCategory">
-                      <div class="table-responsive" v-if="stopLossColumns.length &gt; 0">
-                        <table class="dataTable table">
-                          <thead>
-                            <tr>
-                              <th v-for="(key, idx) in stopLossColumns" :key="idx">{{key}}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr v-for="(row, idx) in filterStopLoss" :key="idx">
-                              <td v-for="(key, valueIdx) in Object.keys(row)" :key="valueIdx">{{filterStopLoss[idx][key]}}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </main>
+                </section>
+              </main>
+            </div>
           </div>
         </article>
       </div>

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dist/css/usercss.css"/>
+    <link rel="stylesheet" href="./dist/css/usercss.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="dist/js/userjs.js"></script>
+    <script src="./dist/js/userjs.js"></script>
     <title>彼得林區投資模型
     </title>
   </head>
@@ -65,13 +65,33 @@
         </aside>
         <!-- 右側內文-->
         <article class="col-sm-9 col-xs-12 main">
-          <div class="blue">
+          <div class="blue" id="peterLynch">
+            <div class="notify notify" :class="loading ? 'show-notify' : 'hide-notify'">{{notifyMsg}}</div>
             <div class="row">
               <!-- Banner-->
-              <div class="col-xs-12 banner"><img class="img-responsive center-block" src="/dist/images/banner-2.png" alt=""/></div>
+              <div class="col-xs-12 banner peterLynch">
+                <div class="content" style="background: url(/dist/images/peterLynch-bg.svg);">
+                  <div class="title">
+                    <h2 class="text-blue">彼得林區投資觀念</h2>
+                    <h3 class="text-grey">Peter Lynch Investments </h3>
+                  </div>
+                  <ol>
+                    <li>盈餘是股價持續上漲的關鍵︰能讓人打出十壘安打的公司，都具有一項共同因素，就是持續成長的盈餘。</li>
+                    <li>
+                       重要的財報數字︰
+                      <ol>
+                        <li>本益比︰本益比大幅低於盈餘年成長率的公司，其股價通常位於低價區。</li>
+                        <li>淨現金︰公司的現金減掉長期負債後，如果每股淨現金高的話，即隱藏高額的股票紅利。</li>
+                        <li>
+                           股　利︰公司有無發股利，會對其價值及股價在長期上有深遠的影響，發放股利的公司往往在股價上更<br/>有支撐力。</li>
+                      </ol>
+                    </li>
+                  </ol>
+                </div>
+              </div>
             </div>
             <!-- 內容-->
-            <div class="row wrapper" id="peterLynch">
+            <div class="row wrapper">
               <aside class="col-sm-4 col-xs-12">
                 <!-- 設定歷史數據分析條件-->
                 <section class="section configuration">
@@ -93,9 +113,7 @@
                     <!-- 股票買進結束日期-->
                     <div class="form-group">
                       <label class="title" for="endTime">股票買進結束日期</label>
-                      <select class="form-control" id="endTime" name="endTime">
-                        <option value="all">2019/06</option>
-                      </select>
+                      <input class="form-control" id="endTime" name="endTime" type="date" v-model="setOpts.endTime"/>
                     </div>
                     <!-- 股票最小持有期間-->
                     <div class="form-inline">
@@ -124,7 +142,7 @@
                         <input id="curCall" type="checkbox" v-model="setOpts.setCall"/>達到買進條件，每月持續買進
                       </label>
                     </div>
-                    <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit">開始分析</button>
+                    <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                   </div>
                 </section>
                 <!-- 備註-->

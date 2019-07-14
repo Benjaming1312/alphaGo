@@ -10,12 +10,16 @@ let httpGetCfg = { // HTTP Get config
   }
 }
 
+// 顏色模板
+const colorCategory = ['#b77ea6', '#57a6c1', '#c48a35']
 
 $(function () {
   if (!is('#aiAnalysis')) {
     return
   }
 
+  chartTheme.xAxis.gridLineWidth = .25 // X軸線條
+  chartTheme.colors = colorCategory
   Highcharts.setOptions(chartTheme)
 
   const app = new Vue({
@@ -26,33 +30,29 @@ $(function () {
       companyOri: [],
       druDate: [],
       companySelect: '',
-      backTestRltColumns: [], // 回測結果統計表表頭
-      dataSheetColumns: [], // 回測結果統計表表頭
-      rocColumns: [], // ROC表頭
+      rocColumns: [], // ROCLegend 資料
       trainingColumns: [], // 訓練及測試資料表頭
+      predictiveAccuracyColumns: [], //預測正確率測試資料
       rocSelect: '全部上市櫃股票', // roc產業類別
       trainingSelect: '全部上市櫃股票', // 最新符合停利停損條件產業類別
-
+      notifyMsg: '資料讀取中，請稍後',
       trainingMaterials: [], // 訓練及測試資料
       methodOfPrediction: [], // 預測方法
-      predictiveAccuracy: null, // 預測正確率測試資料
-      predictiveEffect: null, // 預測效果
+      predictiveAccuracy: [], // 預測正確率測試資料
+      predictiveEffect: [], // 預測效果
       predictionConclusion: [], // 預測結論
       roc: [], // ROC曲線
       setOpts: {
         selectCategory: '全部上市櫃股票', // 產業類別
         companyName: '', // 公司名稱
         companyNum: '', // 公司代號
-        buyDate: '2019/06', // 股票買進日期
+        buyDate: '2019-06-11', // 股票買進日期
         durTime: 24, // 股票持有期間
         ror: 50 // 預估報酬率
       },
       statisticalVerify: null, // 統計檢定
       // DataTable
-      rocTable: null, // Roc Table
-      trainingTable: null, // 訓練及測試資料Table
-      backTestRltTable: null, // 回測結果統計表Table
-      backTestDataSheetTable: null // 回測結果資料表Table
+      trainingTable: null // 訓練及測試資料Table
     },
     computed: {
       companyInfo () {
@@ -63,14 +63,6 @@ $(function () {
           return this.companyOri
             .filter(data => data['產業類別'] === this.setOpts.selectCategory)
         }
-      },
-      /* roc列表 */
-      filterRoc () {
-        // 等畫面準備好，重新render dataTable
-        this.$nextTick(() => {
-          this.rocTable = $('#rocCategory .table').DataTable()
-        })
-        return this.roc
       },
       /* 取得訓練及測試資料列表 */
       filterTrainingMaterials () {
@@ -93,8 +85,6 @@ $(function () {
         console.warn('send info', this.setOpts)
         this.loading = true
 
-        const getBackTestRlt = this.getBackTestRlt() // 取得回測結果統計表
-        const getBackTestDataSheet = this.getBackTestDataSheet() // 取得回測結果資料表
         const getTrainingMaterials = this.getTrainingMaterials() // 取得訓練及測試資料
         const getMethodOfPrediction = this.getMethodOfPrediction() // 取得預測方法
         const getPredictiveAccuracy = this.getPredictiveAccuracy() // 取得預測正確率測試資料
@@ -103,8 +93,6 @@ $(function () {
         const getRoc = this.getRoc() // 取得ROC曲線
         const getStatisticalVerify = this.getStatisticalVerify() // 取得統計檢定
         Promise.all([
-          getBackTestRlt,
-          getBackTestDataSheet,
           getTrainingMaterials,
           getMethodOfPrediction,
           getPredictiveAccuracy,
@@ -115,87 +103,17 @@ $(function () {
         ])
           .then(() => {
             this.renderTable() // 畫圖表
+            this.renderChart() // 畫Chart
 
-            this.loading = false
+            if (env) {
+							setTimeout(() => {
+								this.loading = false
+							}, 3000)
+						}
+						else {
+							this.loading = false
+						}
           })
-      },
-      /* 取得回測結果統計表*/
-      getBackTestRlt () {
-        return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/backTestRlt.json'
-          const getData = axios.create(httpGetCfg)
-          getData.get()
-            .then(res => {
-              // Clear Table
-              if (!_.isNil(this.backTestRltTable)) {
-                this.backTestRltTable.destroy()
-                this.backTestRltTable = null
-              }
-
-              // Clear data
-              this.backTestRlt = []
-              this.backTestRltColumns = []
-
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.backTestRltColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.backTestRltColumns.forEach(key => {
-                  newObj[key] = data[key]
-                })
-                this.backTestRlt.push(newObj)
-              })
-              
-              resolve()
-            })
-            .catch(e => {
-              console.warn('error', e.message)
-              reject()
-            })
-        })
-      },
-      /* 取得回測結果資料表*/
-      getBackTestDataSheet () {
-        return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/backTestDataSheet.json'
-          const getData = axios.create(httpGetCfg)
-          getData.get()
-            .then(res => {
-              // Clear Table
-              if (!_.isNil(this.backTestDataSheetTable)) {
-                this.backTestDataSheetTable.destroy()
-                this.backTestDataSheetTable = null
-              }
-
-              // Clear
-              this.backTestDataSheet = []
-              this.dataSheetColumns = []
-
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.dataSheetColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.dataSheetColumns.forEach(key => {
-                  newObj[key] = data[key]
-                })
-                this.backTestDataSheet.push(newObj)
-              })
-
-              resolve()
-            })
-            .catch(e => {
-              console.warn('error', e.message)
-              reject()
-            })
-        })
       },
       /* 取得統計檢定*/
       getStatisticalVerify () {
@@ -274,13 +192,34 @@ $(function () {
           const getData = axios.create(httpGetCfg)
           getData.get()
             .then(res => {
-              this.predictiveAccuracy = res.data.map(d => _.get(d, '文字敘述'))
+              // Clear table
+              if (!_.isNil(this.predictiveAccuracyTable)) {
+                this.predictiveAccuracyTable.destroy()
+              }
+            
+              // Clear
+              this.predictiveAccuracy = []
+              this.predictiveAccuracyColumns = []
+            
+              // 準備title
+              Object.keys(res.data[0]).forEach(key => {
+                this.predictiveAccuracyColumns.push(key)
+              })
+            
+              // 把多餘的field 刪掉
+              res.data.forEach(data => {
+                const newObj = {}
+                this.predictiveAccuracyColumns.forEach(key => {
+                  newObj[key] = data[key]
+                })
+                this.predictiveAccuracy.push(newObj)
+              })
               resolve()
-            })
-            .catch(e => {
-              console.warn('error', e.message)
-              reject()
-            })
+          })
+          .catch(e => {
+            console.warn('error', e.message)
+            reject()
+          })
         })
       },
       /* 取得預測效果 */
@@ -322,28 +261,12 @@ $(function () {
           const getData = axios.create(httpGetCfg)
           getData.get()
             .then(res => {
-              // Clear table
-              if (!_.isNil(this.rocTable)) {
-                this.rocTable.destroy()
-              }
-
-              // Clear
-              this.roc = []
-              this.rocColumns = []
-
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.rocColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.rocColumns.forEach(key => {
-                  newObj[key] = data[key]
+              this.roc = res.data
+              if (res.data.length > 0) {
+                Object.keys(res.data[0]).forEach(key => {
+                  this.rocColumns.push(key)
                 })
-                this.roc.push(newObj)
-              })
+              }
 
               resolve()
             })
@@ -357,9 +280,53 @@ $(function () {
       renderTable () {
         this.$nextTick(() => {
           // 等畫面render完再執行dataTable
-          this.backTestRltTable = $('#barCollapse-2 .table').DataTable()
-          this.backTestDataSheetTable = $('#barCollapse-3 .table').DataTable()
+          this.predictiveAccuracyTable = $('#barCollapse-3 .table').DataTable()
         })
+      },
+      /* Chart */
+      renderChart () {
+        if (this.roc.length === 0) {
+          return
+        }
+
+        let chartOptions = _.cloneDeep(barOpts)
+        chartOptions.chart.type = 'line'
+        chartOptions.plotOptions.series.marker = {
+          enabled: false
+        }
+
+        // 設定類型
+        // const category = this.rocColumns[0]
+        chartOptions.xAxis.categories = []
+        chartOptions.yAxis.title = this.rocColumns[0]
+        chartOptions.xAxis.title = this.rocColumns[1]
+
+        const labelWidth = 70 // 字元寬度
+        // 設定每隔間距
+        chartOptions.chart.scrollablePlotArea.minWidth = this.roc.length * labelWidth
+
+        // 設定圖表資料
+        const seriesTemp = {
+          name: null,
+          data: [],
+          showInLegend: false
+        }
+        chartOptions.series = []
+
+        // Create series
+        this.rocColumns.forEach((key, idx) => {
+          const newObj = _.cloneDeep(seriesTemp)
+          newObj.name = key
+          chartOptions.series.push(newObj)
+        })
+
+        chartOptions.series.forEach(series => {
+          this.roc.forEach(data => {
+            series.data.push(data[series.name])
+          })
+        })
+
+        var myChart = Highcharts.chart('chartContent', chartOptions)
       }
     },
     watch: {

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanstc.css"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/jquery.dataTables.min.css" integrity="sha256-YY1izqyhIj4W3iyJOaGWOpXDSwrHWFL4Nfk+W0LyCHE=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap.min.css" integrity="sha256-PbaYLBab86/uCEz3diunGMEYvjah3uDFIiID+jAtIfw=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="dist/css/usercss.css"/>
+    <link rel="stylesheet" href="./dist/css/usercss.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.0/masonry.pkgd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js" integrity="sha256-t5ZQTZsbQi8NxszC10CseKjJ5QeMw5NINtOXQrESGSU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap.min.js" integrity="sha256-X/58s5WblGMAw9SpDtqnV8dLRNCawsyGwNqnZD0Je/s=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="dist/js/userjs.js"></script>
+    <script src="./dist/js/userjs.js"></script>
     <title>自訂投資策略模型
     </title>
   </head>
@@ -65,13 +65,21 @@
         </aside>
         <!-- 右側內文-->
         <article class="col-sm-9 col-xs-12 main">
-          <div class="orange">
+          <div class="orange" id="customized">
+            <div class="notify notify" :class="(loading || sendLoading) ? 'show-notify' : 'hide-notify'">{{notifyMsg}}</div>
             <div class="row">
               <!-- Banner-->
-              <div class="col-xs-12 banner"><img class="img-responsive center-block" src="/dist/images/banner-4.png" alt=""/></div>
+              <div class="col-xs-12 banner customized">
+                <div class="content" style="background: url(./dist/images/customized-bg.svg);">
+                  <div class="title">
+                    <h2 class="text-purple">自訂投資模型</h2>
+                    <h3 class="text-grey">Customized Investment</h3>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- 內容-->
-            <div class="row wrapper" id="customized">
+            <div class="row wrapper">
               <!-- 設定歷史數據分析條件-->
               <div class="col-sm-12 col-xs-12">
                 <section class="section configuration" id="setHistory">
@@ -82,18 +90,14 @@
                         <!-- 起始日期-->
                         <div class="form-group">
                           <label class="title" for="startTime">起始日期</label>
-                          <select class="form-control" id="startTime" name="startTime" v-model="historyOpt.startTime">
-                            <option value="2019/06">2019/06</option>
-                          </select>
+                          <input class="form-control" id="startTime" name="startTime" type="date" v-model="historyOpt.startTime"/>
                         </div>
                       </div>
                       <div class="col-sm-6 col-xs-12">
                         <!-- 結束日期-->
                         <div class="form-group">
                           <label class="title" for="endTime">結束日期</label>
-                          <select class="form-control" id="endTime" name="endTime" v-model="historyOpt.endTime">
-                            <option value="2019/06">2019/06</option>
-                          </select>
+                          <input class="form-control" id="endTime" name="endTime" type="date" v-model="historyOpt.endTime"/>
                         </div>
                       </div>
                     </div>
@@ -148,7 +152,7 @@
                 </section>
               </div>
               <!-- 設定買進條件-->
-              <div class="col-sm-12 col-xs-12 configuration setCallOper" v-show="historyOpt.setCall">
+              <div class="col-sm-12 col-xs-12 configuration setCallOper">
                 <div class="row flex">
                   <div class="col-sm-8 col-xs-12">
                     <section class="section configuration">
@@ -236,8 +240,11 @@
                           <!-- 輸入條件，清除條件-->
                           <div class="col-sm-4 col-xs-12">
                             <div class="btn-group">
-                              <button class="btn" id="submit" @click="submit">輸入條件</button>
+                              <button class="btn" id="send" @click="send"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
                               <button class="btn" id="clear" @click="clear('callOpt')">清除條件</button>
+                            </div>
+                            <div class="btn-group">
+                              <button class="btn" id="submit" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                             </div>
                           </div>
                         </div>
@@ -328,15 +335,18 @@
                             <div class="form-group">
                               <label class="title" for="category">運算符號</label>
                               <select class="form-control" id="category" name="category" v-model="putOpt.operator">
-                                <option value="all">></option>
+                                <option value="&gt;">></option>
                               </select>
                             </div>
                           </div>
                           <!-- 輸入條件，清除條件-->
                           <div class="col-sm-4 col-xs-12">
                             <div class="btn-group">
-                              <button class="btn" id="submit" @click="submit">輸入條件</button>
+                              <button class="btn" id="send" @click="send"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
                               <button class="btn" id="clear" @click="clear('putOpt')">清除條件</button>
+                            </div>
+                            <div class="btn-group">
+                              <button class="btn" id="submit" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                             </div>
                           </div>
                         </div>
