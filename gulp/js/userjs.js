@@ -51,7 +51,20 @@ function sideActive () {{
   }
 }}
 
+function hideLoading () {
+  $('.main-loading').fadeOut(1000)
+}
+
 $(function () {
+  if (env) {
+    setTimeout(() => {
+      hideLoading()
+    }, 3000)
+  }
+  else {
+    hideLoading()
+  }
+
   sideActive() // 子選單自動打開
 
   // 左側縮合 addEventListener
