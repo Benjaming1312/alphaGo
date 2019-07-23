@@ -32,6 +32,11 @@ $(function () {
     return
   }
 
+  // 設定按鈕顏色
+  barOpts.chart.resetZoomButton.theme.fill = '#a85e8e'
+  barOpts.chart.resetZoomButton.theme.states.hover.style.color = barOpts.chart.resetZoomButton.theme.fill
+  _.set(barOpts, 'tooltip.backgroundColor', '#a85e8e')
+
   chartTheme.xAxis.gridLineWidth = .25 // X軸線條
   chartTheme.colors = colorCategory
   Highcharts.setOptions(chartTheme)
@@ -197,9 +202,9 @@ $(function () {
         chartOptions.xAxis.categories = this.chartData.map(data => data[category])
 
 
-        const labelWidth = 70 // 字元寬度
-        // 設定每隔間距
-        chartOptions.chart.scrollablePlotArea.minWidth = this.chartData.length * labelWidth
+        // const labelWidth = 70 // 字元寬度
+        // // 設定每隔間距
+        // chartOptions.chart.scrollablePlotArea.minWidth = this.chartData.length * labelWidth
 
         // 設定圖表資料
         const seriesTemp = {

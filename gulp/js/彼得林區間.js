@@ -10,6 +10,7 @@ const httpGetCfg = { // HTTP Get config
 	}
 }
 
+
 $(function () {
 	if (!is('#peterLynch')) {
 		return
@@ -17,6 +18,11 @@ $(function () {
 
 	chartTheme.colors = ['#509de2'] // Set color
 	Highcharts.setOptions(chartTheme)
+
+	// 設定按鈕顏色
+	barOpts.chart.resetZoomButton.theme.fill = '#1a72d3'
+	barOpts.chart.resetZoomButton.theme.states.hover.style.color = barOpts.chart.resetZoomButton.theme.fill
+	_.set(barOpts, 'tooltip.backgroundColor', '#1a72d3')
 
 	const app = new Vue({
 		el: '#peterLynch',

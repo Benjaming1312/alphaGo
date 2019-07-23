@@ -42,6 +42,11 @@ $(function () {
   chartTheme.colors = ['#ff8787']
   Highcharts.setOptions(chartTheme)
 
+  // 設定按鈕顏色
+  barOpts.chart.resetZoomButton.theme.fill = '#ff8787'
+  barOpts.chart.resetZoomButton.theme.states.hover.style.color = barOpts.chart.resetZoomButton.theme.fill
+  _.set(barOpts, 'tooltip.backgroundColor', '#ff8787')
+
   const app = new Vue({
     el: '#customized',
     data: {

@@ -31,10 +31,16 @@ const guessTemp = {
 // 顏色模板
 const colorCategory = ['#b77ea6', '#57a6c1', '#c48a35']
 
+
 $(function () {
   if (!is('#cusAiAnalysis')) {
     return
   }
+
+  // 設定按鈕顏色
+  barOpts.chart.resetZoomButton.theme.fill = '#ffc610'
+  barOpts.chart.resetZoomButton.theme.states.hover.style.color = barOpts.chart.resetZoomButton.theme.fill
+  _.set(barOpts, 'tooltip.backgroundColor', '#ffc610')
 
   chartTheme.xAxis.gridLineWidth = .25 // X軸線條
   chartTheme.colors = colorCategory
@@ -379,9 +385,9 @@ $(function () {
           text: this.rocColumns[0]
         }
 
-        const labelWidth = 70 // 字元寬度
-        // 設定每隔間距
-        chartOptions.chart.scrollablePlotArea.minWidth = this.roc.length * labelWidth
+        // const labelWidth = 70 // 字元寬度
+        // // 設定每隔間距
+        // chartOptions.chart.scrollablePlotArea.minWidth = this.roc.length * labelWidth
 
         // 設定圖表資料
         const seriesTemp = {

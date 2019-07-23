@@ -10,11 +10,15 @@ const httpGetCfg = { // HTTP Get config
   }
 }
 
-
 $(function () {
   if (!is('#snow')) {
     return
   }
+
+  // 設定按鈕顏色
+  barOpts.chart.resetZoomButton.theme.fill = '#1989a3'
+  barOpts.chart.resetZoomButton.theme.states.hover.style.color = barOpts.chart.resetZoomButton.theme.fill
+  _.set(barOpts, 'tooltip.backgroundColor', '#1989a3')
   
   chartTheme.colors = ['#1989a3'] // Set color
   Highcharts.setOptions(chartTheme)

@@ -1,5 +1,8 @@
 // Chart 外觀
 const chartTheme = {
+  lang: {
+    resetZoom: '重置縮放'
+  },
   colors: ['#a986ce'],
   chart: {
     borderColor: '#000000',
@@ -33,7 +36,6 @@ const chartTheme = {
       color: '#FFFFFF'
     }
   },
-
 
   scrollbar: {
     barBackgroundColor: {
@@ -80,13 +82,41 @@ const chartTheme = {
   }
 }
 
+
 // Bar chart options
 const barOpts = {
   chart: {
     type: 'column',
     scrollablePlotArea: {
-      minWidth: 1000,
       scrollPositionX: 1
+    },
+    zoomType: 'x',
+    selectionMarkerFill: 'rgba(0,0,0, 0.2)',
+    resetZoomButton: {
+      // 按钮定位
+      position:{
+        align: 'right', // by default
+        verticalAlign: 'top', // by default
+        x: 0,
+        y: 0
+      },
+      // 按钮样式
+      theme: {
+        fill: 'white',
+        style: {
+          color: 'white'
+        },
+        // stroke: 'silver',
+        r: 0,
+        states: {
+          hover: {
+            fill: 'white',
+            style: {
+              color: 'white'
+            }
+          }
+        }
+      }
     }
   },
   credits: {

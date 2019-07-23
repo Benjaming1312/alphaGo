@@ -12,10 +12,16 @@ const httpGetCfg = { // HTTP Get config
 
 Highcharts.setOptions(chartTheme)
 
+
 $(function () {
   if (!is('#buffet')) {
     return
   }
+
+  // 設定按鈕顏色
+  barOpts.chart.resetZoomButton.theme.fill = '#835ea5'
+  barOpts.chart.resetZoomButton.theme.states.hover.style.color = barOpts.chart.resetZoomButton.theme.fill
+  _.set(barOpts, 'tooltip.backgroundColor', '#835ea5')
 
   const app = new Vue({
     el: '#buffet',
