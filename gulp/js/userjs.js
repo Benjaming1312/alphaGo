@@ -52,17 +52,17 @@ function sideActive () {{
 }}
 
 function hideLoading () {
-  $('.main-loading').fadeOut(1000)
+  $('.main-loading').fadeOut(500)
   setTimeout(() => {
     $('.main-loading').remove()
-  }, 1500)
+  }, 500)
 }
 
 $(function () {
   if (env) {
     setTimeout(() => {
       hideLoading()
-    }, 3000)
+    }, 1500)
   }
   else {
     hideLoading()
@@ -79,8 +79,11 @@ $(function () {
     toggleSide()
 
     // 備註放到最後面
-    $('.row.wrapper').append(`<div class="col-xs-12 memoAppend"></div>`)
-    $('.memo').appendTo('.memoAppend')
+    
+    $('.row.wrapper').eq($('.row.wrapper').length - 1).append(`<div class="col-xs-12 memoAppend"></div>`)
+    setTimeout(() => {
+      $('.memo').appendTo('.memoAppend')
+    });
   }
 
 })
