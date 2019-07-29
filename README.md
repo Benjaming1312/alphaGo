@@ -1,6 +1,13 @@
 # alphaGo
 alphaGo prototype
 
+## Install
+```
+npm install
+npm run gulp
+// dist server started http://localhost:8006
+```
+
 ## Data map
 前端畫面會用到的Data souece都放在路徑`dist/data`內，以下為對應資料檔案名稱，
 請轉換成相對應的格式型態。
@@ -29,6 +36,7 @@ alphaGo prototype
 | ------ | ---------|
 | 訓練及測試資料 | trainingMaterials |
 | 預測方法 | methodOfPrediction |
+| 預測目標 | textAims.json |
 | 預測正確率測試資料 | predictiveAccuracy |
 | 預測效果 | predictiveEffect |
 | 預測結論 | predictionConclusion|
@@ -38,3 +46,9 @@ alphaGo prototype
 | CSV名稱 | JSON名稱 |
 | ------ | ---------|
 | 數據圖表分析 | dataAnalytics |
+
+### JS 說明
+| Name | Description |
+| userjs.js | 存放所有DOM移動的相關操作|
+| chartOption.js | Default Chart option|
+| 巴菲特投資.js | 資料串接跟Render邏輯的操作|
