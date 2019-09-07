@@ -73,7 +73,7 @@ $(function () {
       // 設定歷史數據分析條件
       historyOpt: {
         startTime: '2019-06-11', // 起始日期
-        endTime: '2019-07-11', // 結束日期
+        endTime: moment().format('YYYY-MM-DD'), // 股票買進結束日期
         minMonth: 24, // 股票最小持有期間
         maxMonth: 24, // 股票最大持有期間
         stopLoss: -20, // 設定停損報酬率

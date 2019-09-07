@@ -15,7 +15,7 @@ const setTemp = {
   selectCategory: '全部上市櫃股票', // 產業類別
   companyName: '', // 公司名稱
   companyNum: '', // 公司代號
-  buyTime: '2019-06-11', // 買進日期
+  buyTime: moment().format('YYYY-MM-DD'), // 買進日期
   durTime: '24', // 持有期間
   ror: 10, // 預估報酬率
   setList: [],

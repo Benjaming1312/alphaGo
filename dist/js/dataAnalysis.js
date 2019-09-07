@@ -21,7 +21,7 @@ const analyTemp = {
   categoryItem: '年度投資活動現金流量', // 項目
   dataOption: '當期值', // 資料型態
   startTime: '2012-01-01', // 起始日期
-  endTime: '2019-06-11' // 結束日期
+  endTime: moment().format('YYYY-MM-DD'), // 結束日期
 }
 
 // 顏色模板

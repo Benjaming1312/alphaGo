@@ -43,7 +43,7 @@ $(function () {
 			// 設定歷史數據分析條件
 			setOpts: {
 				company: '全部上市櫃股票', // 產業類別
-				endTime: '2019-07-11', // 股票買進結束日期
+				endTime: moment().format('YYYY-MM-DD'), // 股票買進結束日期
 				druTime: 24, // 股票最大持有期間
 				stopCall: true, // 設定停損條件
 				setPut: false, // 設定賣出條件
