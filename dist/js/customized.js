@@ -462,11 +462,12 @@ $(function () {
       },
       /* 取得圖表資料*/
       getInvestmentModelDataSource () {
-        return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/investmentModelDataSource.json'
+        return new Promise((resolve, reject) => {ｚ
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/chartData', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /chartData', res)
               this.investmentModelDataSource = res.data
               // Set default
               if (_.isNil(this.selectChart)) {
@@ -475,7 +476,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /chartData', e)
               reject(e)
             })
         })

@@ -124,7 +124,7 @@ $(function () {
         const getAnalyzeText = this.getAnalyzeText() // 取得模型效果分析文字
         const getLatestBuy = this.getLatestBuy() // 取得最新買進條件股票
         const getStopLossCondition = this.getStopLossCondition() // 取得最新符合停利停損條件股票
-        const getChartData = this.getChartData()
+        // const getChartData = this.getChartData()
         Promise.all([
           getBackTestRlt,
           getBackTestDataSheet,
@@ -132,8 +132,7 @@ $(function () {
           getInvestmentModelDataSource,
           getAnalyzeText,
           getLatestBuy,
-          getStopLossCondition,
-          getChartData
+          getStopLossCondition
         ])
          .then(() => {
            this.renderChart() // 畫Chart
@@ -264,10 +263,11 @@ $(function () {
       /* 取得圖表類型*/
       getInvestmentModelDataSource () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/investmentModelDataSource.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/chartData', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /chartData', res)
               this.investmentModelDataSource = res.data
               // Set default
               if (_.isNil(this.selectChart)) {
@@ -276,6 +276,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /chartData', e)
               reject(e)
             })
         })
@@ -377,25 +378,25 @@ $(function () {
         })
       },
       /* 取得圖表資料 */
-      getChartData () {
-        return new Promise((resolve, reject) => {
-          // 取得圖表資料
-          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
-          const getData1 = axios.create(httpGetCfg)
-          const dataRlt1 = getData1.get('/chartData', {params: this.setOpts})
+      // getChartData () {
+      //   return new Promise((resolve, reject) => {
+      //     // 取得圖表資料
+      //     httpGetCfg.baseURL = 'http://18.219.6.80:3700'
+      //     const getData1 = axios.create(httpGetCfg)
+      //     const dataRlt1 = getData1.get('/chartData', {params: this.setOpts})
 
-          Promise.all([dataRlt1])
-            .then(res => {
-              console.info('API Response: /chartData', res)
-              this.chartData = res[0].data
-              resolve()
-            })
-            .catch(e => {
-              console.error('API Fail: /chartData', e)
-              reject(e)
-            })
-        })
-      },
+      //     Promise.all([dataRlt1])
+      //       .then(res => {
+      //         console.info('API Response: /chartData', res)
+      //         this.chartData = res[0].data
+      //         resolve()
+      //       })
+      //       .catch(e => {
+      //         console.error('API Fail: /chartData', e)
+      //         reject(e)
+      //       })
+      //   })
+      // },
       /* 畫圖表 */
       renderChart () {
         if (this.investmentModelDataSource.length === 0) {

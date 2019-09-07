@@ -177,28 +177,32 @@ $(function () {
       /* 取得數據圖表分析 */
       getData () {
       return new Promise((resolve, rejects) => {
-        httpGetCfg.baseURL = 'dist/data/chartData/dataAnalytics.json'
+        httpGetCfg.baseURL = 'http://18.219.6.80:3700'
         const getData = axios.create(httpGetCfg)
-        getData.get()
+        getData.get('/chartData', {params: this.analysisOpt})
           .then(res => {
-            this.chartData = []
-            this.dataColumns = []
-
-            Object.keys(res.data[0]).forEach(key => {
-              this.dataColumns.push(key)
-            })
-
-            res.data.forEach(data => {
-              const newObj = {}
-              this.dataColumns.forEach(key => {
-                newObj[key] = data[key]
+            console.info('API Response: /chartData', res)
+            if (Array.isArray(res.data) && res.data.length > 0) {
+              this.chartData = []
+              this.dataColumns = []
+  
+              Object.keys(res.data[0]).forEach(key => {
+                this.dataColumns.push(key)
               })
-              this.chartData.push(newObj)
-            })
+  
+              res.data.forEach(data => {
+                const newObj = {}
+                this.dataColumns.forEach(key => {
+                  newObj[key] = data[key]
+                })
+                this.chartData.push(newObj)
+              })
+            }
 
             resolve()
           })
           .catch(e => {
+            console.error('API Fail: /chartData', e)
             console.warn('error', e.message)
             rejects(e)
           })
