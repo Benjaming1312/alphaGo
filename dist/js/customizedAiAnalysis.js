@@ -177,9 +177,19 @@ $(function () {
       },
       /* 要送出的Data */
       sendData () {
+        const setOptSend = this.setOpt
+        const getOptSend = this.getOpt
+
+        if (getOptSend && getOptSend.listMap.length > 0) {
+          getOptSend.listMap = getOptSend.listMap.join('|')
+        }
+        else {
+          getOptSend.listMap = ''
+        }
+
         return {
-          setOpt: this.setOpt,
-          getOpt: this.getOpt
+          setOpt: setOptSend,
+          getOpt: getOptSend
         }
       }
     },
@@ -195,7 +205,7 @@ $(function () {
         }
 
         this.setOpt.setList = [`預測目標︰於${setListMap.buyTime}買進${setListMap.companyName}，持有${setListMap.durTime}個月後，報酬率是否大於${setListMap.ror}%`]
-        this.setOpt.listMap = [setListMap]
+        this.setOpt.listMap = `${setListMap.buyTime}/${setListMap.companyName}/${setListMap.durTime}/${setListMap.ror}`
         
         // 預測因素內容
         const guessListMap = {
@@ -204,8 +214,9 @@ $(function () {
           dataOption: this.getOpt.dataOption,
         }
         const text = `${guessListMap.guessDurTime}${guessListMap.guessCategoryItem}${guessListMap.dataOption}`
+        const rType = `${guessListMap.guessDurTime}/${guessListMap.guessCategoryItem}/${guessListMap.dataOption}`
         this.getOpt.guessList.push(text)
-        this.getOpt.listMap.push(guessListMap)
+        this.getOpt.listMap.push(rType)
 
       },
       /* 開始分析 */

@@ -258,10 +258,27 @@ $(function () {
       },
       /* 要送出的Data */
       sendData () {
+        const callOptSend = this.historyOpt.setCall ? this.callOpt : null
+        const putOptSend = this.historyOpt.setPut ? this.putOpt : null
+
+        if (callOptSend && callOptSend.listMap.length > 0) {
+          callOptSend.listMap = callOptSend.listMap.join('|')
+        }
+        else {
+          callOptSend.listMap = ''
+        }
+
+        if (putOptSend && putOptSend.listMap.length > 0) {
+          putOptSend.listMap = putOptSend.listMap.join('|')
+        }
+        else {
+          putOptSend.listMap = ''
+        }
+
         return {
           historyOpt: this.historyOpt, //歷史數據分析條件
-          callOpt: this.historyOpt.setCall ? this.callOpt : null, // 每月買進
-          putOpt: this.historyOpt.setPut ? this.putOpt : null // 賣出條件
+          callOpt: callOptSend, // 每月買進
+          putOpt: putOptSend // 賣出條件
         }
       }
     },
@@ -282,8 +299,9 @@ $(function () {
         }
 
         const text = `${listMap.drutime}${listMap.item}${listMap.dataOption}${listMap.oper}${listMap.num}`
+        const rType = `${listMap.drutime}/${listMap.item}/${listMap.dataOption}/${listMap.oper}/${listMap.num}`
         this[`${target}Opt`][`${target}List`].push(text)
-        this[`${target}Opt`].listMap.push(listMap)
+        this[`${target}Opt`].listMap.push(rType)
       },
       /* 開始分析 */
       submit () {
