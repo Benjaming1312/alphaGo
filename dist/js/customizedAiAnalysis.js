@@ -177,8 +177,8 @@ $(function () {
       },
       /* 要送出的Data */
       sendData () {
-        const setOptSend = this.setOpt
-        const getOptSend = this.getOpt
+        const setOptSend = _.cloneDeep(this.setOpt)
+        const getOptSend = _.cloneDeep(this.getOpt)
 
         if (getOptSend && getOptSend.listMap.length > 0) {
           getOptSend.listMap = getOptSend.listMap.join('|')
