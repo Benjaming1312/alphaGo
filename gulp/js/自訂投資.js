@@ -530,15 +530,23 @@ $(function () {
     watch: {
       'callOpt.dataType' () {
         this.callOpt.categoryIdx = this.indexCategory[0]
+        this.callOpt.durTime = this.callDurTimeOpts[0]
       },
       'callOpt.categoryIdx' () {
         this.callOpt.categoryItem = this.itemCategory[0]
       },
+      'callOpt.durTime' () {
+        this.callOpt.dataOption = this.callDataOptionOpts[0]
+      },
       'putOpt.dataType' () {
         this.putOpt.categoryIdx = this.putIndexCategory[0]
+        this.putOpt.durTime = this.putDurTimeOpts[0]
       },
       'putOpt.categoryIdx' () {
         this.putOpt.categoryItem = this.putItemCategory[0]
+      },
+      'putOpt.durTime' () {
+        this.putOpt.dataOption = this.putDataOptionOpts[0]
       },
       selectChart () {
         this.renderChart()

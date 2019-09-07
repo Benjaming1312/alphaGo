@@ -19,7 +19,8 @@ const callTemp = {
   categoryItem: '年度投資活動現金流量', // 項目
   dataOption: '當期值', // 資料型態
   operator: '>', // 運算符號
-  num: 10 // 數值
+  num: 10, // 數值
+  callList: ['最近1年股東權益報酬率當期值>10'] // 買進條件
 }
 
 // 賣出條件 template
@@ -30,7 +31,8 @@ const putTemp = {
   categoryItem: '年度投資活動現金流量', // 項目
   dataOption: '當期值', // 資料型態
   operator: '>', // 運算符號
-  num: 10 // 數值
+  num: 10, // 數值
+  putList: ['最近1年股東權益報酬率當期值>10'] // 賣出條件
 }
 
 
@@ -74,8 +76,8 @@ $(function () {
         maxMonth: 24, // 股票最大持有期間
         stopLoss: -20, // 設定停損報酬率
         setCall: false, // 設定每月買進
-        setPut: false, // 設定賣出條件
-        setStopLoss: false // 設定停損條件
+        setPut: true, // 設定賣出條件
+        setStopLoss: true // 設定停損條件
       },
       // 買進條件
       callOpt: _.cloneDeep(callTemp),
@@ -185,6 +187,72 @@ $(function () {
         else {
           return this.stopLossCondition.filter(data => data['產業類別'] === this.stopLossSelect)
         }
+      },
+      /** 資料統計年度選項 - 買進 */
+      callDurTimeOpts () {
+        let rlt = []
+        switch (this.callOpt.dataType) {
+          case '財報年報':
+            rlt = ['最近1年', '最近2年', '最近3年', '最近4年', '最近5年']
+            break
+          case '財報季報':
+            rlt = ['最近1季', '最近2季', '最近3季', '最近4季']
+            break
+          case '價值評估':
+          case '籌碼面':
+          case '技術面':
+            rlt = ['最近1月', '最近2月', '最近3月', '最近4月', '最近5月', '最近6月']
+            break
+        }
+        return rlt
+      },
+      /** 資料統計年度選項 - 賣出 */
+      putDurTimeOpts () {
+        let rlt = []
+        switch (this.putOpt.dataType) {
+          case '財報年報':
+            rlt = ['最近1年', '最近2年', '最近3年', '最近4年', '最近5年']
+            break
+          case '財報季報':
+            rlt = ['最近1季', '最近2季', '最近3季', '最近4季']
+            break
+          case '價值評估':
+          case '籌碼面':
+          case '技術面':
+            rlt = ['最近1月', '最近2月', '最近3月', '最近4月', '最近5月', '最近6月']
+            break
+        }
+        return rlt
+      },
+      /** 資料型態選項 - 買進 */
+      callDataOptionOpts () {
+        let rlt = []
+        switch (this.callOpt.durTime) {
+          case '最近1年':
+          case '最近1季':
+          case '最近1月':
+            rlt = ['當期值']
+            break
+          default:
+            rlt = ['平均值', '合計值']
+            break
+        }
+        return rlt
+      },
+      /** 資料型態選項 - 賣出 */
+      putDataOptionOpts () {
+        let rlt = []
+        switch (this.putOpt.durTime) {
+          case '最近1年':
+          case '最近1季':
+          case '最近1月':
+            rlt = ['當期值']
+            break
+          default:
+            rlt = ['平均值', '合計值']
+            break
+        }
+        return rlt
       }
     },
     methods: {
@@ -194,23 +262,14 @@ $(function () {
         return rlt.length > 0 ? rlt[0]['單位'] : ''
       },
       /* 輸入條件 */
-      send () {
-        this.sendLoading = true
-        const rlt = {
-          historyOpt: this.historyOpt, //歷史數據分析條件
-          callOpt: this.historyOpt.setCall ? this.callOpt : null, // 每月買進
-          putOpt: this.historyOpt.setPut ? this.putOpt : null // 賣出條件
-        }
-        console.warn('send info', rlt)
-        
-        if (env) {
-          setTimeout(() => {
-            this.sendLoading = false
-          }, 3000)
-        }
-        else {
-          this.sendLoading = false
-        }
+      send (target) {
+        const drutime = this[`${target}Opt`].durTime
+        const item = this[`${target}Opt`].categoryItem
+        const dataOption = this[`${target}Opt`].dataOption
+        const oper = this[`${target}Opt`].operator
+        const num = this[`${target}Opt`].num
+        const text = `${drutime}${item}${dataOption}${oper}${num}`
+        this[`${target}Opt`][`${target}List`].push(text)
       },
       /* 開始分析 */
       submit () {
@@ -274,14 +333,7 @@ $(function () {
        * @param {String} - 清除買進或賣出
        */
       clear (type) {
-        switch (type) {
-          case 'callOpt':
-            this.callOpt = _.cloneDeep(callTemp)
-            break
-          case 'putOpt':
-            this.putOpt = _.cloneDeep(putTemp)
-            break
-        }
+        this[`${type}Opt`][`${type}List`] = []
       },
       /* 取得回測結果統計表*/
       getBackTestRlt () {
@@ -547,15 +599,23 @@ $(function () {
     watch: {
       'callOpt.dataType' () {
         this.callOpt.categoryIdx = this.indexCategory[0]
+        this.callOpt.durTime = this.callDurTimeOpts[0]
       },
       'callOpt.categoryIdx' () {
         this.callOpt.categoryItem = this.itemCategory[0]
       },
+      'callOpt.durTime' () {
+        this.callOpt.dataOption = this.callDataOptionOpts[0]
+      },
       'putOpt.dataType' () {
         this.putOpt.categoryIdx = this.putIndexCategory[0]
+        this.putOpt.durTime = this.putDurTimeOpts[0]
       },
       'putOpt.categoryIdx' () {
         this.putOpt.categoryItem = this.putItemCategory[0]
+      },
+      'putOpt.durTime' () {
+        this.putOpt.dataOption = this.putDataOptionOpts[0]
       },
       selectChart () {
         this.renderChart()

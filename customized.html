@@ -112,18 +112,14 @@
                         <!-- 股票最小持有期間-->
                         <div class="form-group">
                           <label class="title" for="minMonth">股票最小持有期間<span class="uint">（單位：月）</span></label>
-                          <select class="form-control" id="endTime" name="endTime" v-model="historyOpt.minMonth">
-                            <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
-                          </select>
+                          <input class="form-control" id="endTime" name="endTime" type="number" min="1" max=" 36" v-model="historyOpt.minMonth"/>
                         </div>
                       </div>
                       <div class="col-sm-6 col-xs-12">
                         <!-- 股票最大持有期間-->
                         <div class="form-group">
                           <label class="title" for="maxMonth">股票最大持有期間<span class="uint">（單位：月）</span></label>
-                          <select class="form-control" id="maxMonth" name="maxMonth" v-model="historyOpt.maxMonth">
-                            <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
-                          </select>
+                          <input class="form-control" id="maxMonth" name="maxMonth" type="number" min="1" max="120" v-model="historyOpt.maxMonth"/>
                         </div>
                       </div>
                     </div>
@@ -132,9 +128,7 @@
                         <!-- 設定停損報酬率-->
                         <div class="form-group">
                           <label class="title" for="stopLoss">設定停損報酬率</label>
-                          <select class="form-control" id="stopLoss" name="stopLoss" v-model="historyOpt.stopLoss">
-                            <option value="-20">-20</option>
-                          </select>
+                          <input class="form-control" id="stopLoss" name="stopLoss" v-model="historyOpt.stopLoss" min="-1000" max="0"/>
                         </div>
                       </div>
                       <div class="col-sm-6 col-xs-12" :class="historyOpt.setStopLoss ? '' : 'col-sm-push-6'">
@@ -189,6 +183,10 @@
                               <label class="title" for="category">運算符號</label>
                               <select class="form-control" id="category" name="category" v-model="callOpt.operator">
                                 <option value="&gt;">></option>
+                                <option value="&lt;"><</option>
+                                <option value="=">=</option>
+                                <option value="&gt;=">>=</option>
+                                <option value="&lt;="><=</option>
                               </select>
                             </div>
                           </div>
@@ -218,9 +216,7 @@
                           <div class="col-sm-4 col-xs-12">
                             <div class="form-group">
                               <label class="title" for="category">數值</label>
-                              <select class="form-control" id="category" name="category" v-model="callOpt.num">
-                                <option value="10">10</option>
-                              </select>
+                              <input class="form-control" id="category" name="category" type="number" min="1" max="1e+06" v-model="callOpt.num"/>
                             </div>
                           </div>
                         </div>
@@ -230,7 +226,7 @@
                             <div class="form-group">
                               <label class="title" for="category">資料統計年度</label>
                               <select class="form-control" id="category" name="category" v-model="callOpt.durTime">
-                                <option value="最近1年">最近1年</option>
+                                <option v-for="(data, idx) in callDurTimeOpts" :value="data" :key="idx">{{data}}</option>
                               </select>
                             </div>
                           </div>
@@ -239,17 +235,17 @@
                             <div class="form-group">
                               <label class="title" for="category">資料型態 <span class="unit">(單位%)</span></label>
                               <select class="form-control" id="category" name="category" v-model="callOpt.dataOption">
-                                <option value="當期值">當期值</option>
+                                <option v-for="(data, idx) in callDataOptionOpts" :value="data" :key="idx">{{data}}</option>
                               </select>
                             </div>
                           </div>
                           <!-- 輸入條件，清除條件-->
                           <div class="col-sm-4 col-xs-12">
-                            <div class="btn-group">
-                              <button class="btn" id="send" @click="send"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
-                              <button class="btn" id="clear" @click="clear('callOpt')">清除條件</button>
+                            <div class="btn-group" :style="historyOpt.setPut ? 'padding-top: 1.25rem;' : ''">
+                              <button class="btn" id="send" @click="send('call')"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
+                              <button class="btn" id="clear" @click="clear('call')">清除條件</button>
                             </div>
-                            <div class="btn-group">
+                            <div class="btn-group" v-if="!historyOpt.setPut">
                               <button class="btn" id="submit" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                             </div>
                           </div>
@@ -262,7 +258,7 @@
                     <section class="section configuration attention">
                       <header class="head bg-color">買進條件內容</header>
                       <div class="content">
-                        <p>最近1年年度股東權益報酬率當期值>10</p>
+                        <p v-for="(item, idx) in callOpt.callList" :key="idx">{{item}}</p>
                       </div>
                     </section>
                   </div>
@@ -300,9 +296,7 @@
                           <div class="col-sm-4 col-xs-12">
                             <div class="form-group">
                               <label class="title" for="category">數值</label>
-                              <select class="form-control" id="category" name="category" v-model="putOpt.num">
-                                <option value="10">10</option>
-                              </select>
+                              <input class="form-control" id="category" name="category" type="number" min="1" max="1e+06" v-model="putOpt.num"/>
                             </div>
                           </div>
                         </div>
@@ -312,7 +306,7 @@
                             <div class="form-group">
                               <label class="title" for="category">資料統計年度</label>
                               <select class="form-control" id="category" name="category" v-model="putOpt.durTime">
-                                <option value="最近1年">最近1年</option>
+                                <option v-for="(data, idx) in putDurTimeOpts" :value="data" :key="idx">{{data}}</option>
                               </select>
                             </div>
                           </div>
@@ -321,7 +315,7 @@
                             <div class="form-group">
                               <label class="title" for="category">資料型態 <span class="unit">(單位%)</span></label>
                               <select class="form-control" id="category" name="category" v-model="putOpt.dataOption">
-                                <option value="當期值">當期值</option>
+                                <option v-for="(data, idx) in putDataOptionOpts" :value="data" :key="idx">{{data}}</option>
                               </select>
                             </div>
                           </div>
@@ -342,14 +336,18 @@
                               <label class="title" for="category">運算符號</label>
                               <select class="form-control" id="category" name="category" v-model="putOpt.operator">
                                 <option value="&gt;">></option>
+                                <option value="&lt;"><</option>
+                                <option value="=">=</option>
+                                <option value="&gt;=">>=</option>
+                                <option value="&lt;="><=</option>
                               </select>
                             </div>
                           </div>
                           <!-- 輸入條件，清除條件-->
                           <div class="col-sm-4 col-xs-12">
                             <div class="btn-group">
-                              <button class="btn" id="send" @click="send"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
-                              <button class="btn" id="clear" @click="clear('putOpt')">清除條件</button>
+                              <button class="btn" id="send" @click="send('put')"><i class="fa fa-spinner fa-pulse fa-fw" v-if="sendLoading"></i>輸入條件</button>
+                              <button class="btn" id="clear" @click="clear('put')">清除條件</button>
                             </div>
                             <div class="btn-group">
                               <button class="btn" id="submit" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
@@ -364,7 +362,7 @@
                     <section class="section configuration attention">
                       <header class="head bg-color">賣出條件內容</header>
                       <div class="content">
-                        <p>最近1年股東權益報酬率當期值>10</p>
+                        <p v-for="(item, idx) in putOpt.putList" :key="idx">{{item}}</p>
                       </div>
                     </section>
                   </div>

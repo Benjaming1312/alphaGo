@@ -148,6 +148,11 @@
                         <input id="curCall" type="checkbox" v-model="setOpts.setCall"/>達到買進條件，每月持續買進
                       </label>
                     </div>
+                    <!-- 設定停損報酬率-->
+                    <div class="form-group" v-if="setOpts.stopCall">
+                      <label class="title" for="putRor">設定停損報酬率</label>
+                      <input class="form-control" type="number" min="-1000" max="0" v-model="setOpts.stopLoss"/>
+                    </div>
                     <button class="btn submit-btn" href="javascript: void(0)" type="button" @click="submit"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                   </div>
                 </section>

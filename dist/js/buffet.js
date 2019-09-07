@@ -44,7 +44,7 @@ $(function () {
         company: '全部上市櫃股票', // 產業類別
         endTime: '2019-07-11', // 股票買進結束日期
         druTime: 24, // 股票最大持有期間
-        stopCall: false, // 設定停損條件
+        stopCall: true, // 設定停損條件
         setPut: false, // 設定賣出條件
         setCall: false, // 達到買進條件，每月持續買進
         stopLoss: -20 // 停損報酬率
@@ -282,9 +282,10 @@ $(function () {
       /* 取得模型效果分析文字*/
       getAnalyzeText () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/analyzeText.json'
+          // httpGetCfg.baseURL = 'dist/data/strategyModel/analyzeText.json'
+          httpGetCfg.baseURL = 'http://localhost:3000/'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/testget', {params: this.setOpts})
             .then(res => {
               this.analyzeText = res.data.map(d => _.get(d, '文字敘述'))
               resolve()

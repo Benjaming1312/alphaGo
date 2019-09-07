@@ -16,7 +16,9 @@ const setTemp = {
   companyName: '', // 公司名稱
   companyNum: '', // 公司代號
   buyTime: '2019-06-11', // 買進日期
-  durTime: '24' // 持有期間
+  durTime: '24', // 持有期間
+  ror: 10, // 預估報酬率
+  setList: []
 }
 
 // 預測因素Template
@@ -25,7 +27,8 @@ const guessTemp = {
   durTime: '最近1年', // 資料統計年度
   categoryIdx: '現金流量', // 指標類別
   categoryItem: '年度投資活動現金流量', // 項目
-  dataOption: '當期值' // 資料型態
+  dataOption: '當期值', // 資料型態
+  guessList: []
 }
 
 // 顏色模板
@@ -132,23 +135,61 @@ $(function () {
         else {
           return this.trainingMaterials.filter(data => data['產業類別'] === this.trainingSelect)
         }
+      },
+      /**
+       * 資料統計年度選項
+       */
+      durTimeOpts () {
+        let rlt = []
+        switch (this.getOpt.dataType) {
+          case '財報年報':
+            rlt = ['最近1年', '最近2年', '最近3年', '最近4年', '最近5年']
+            break
+          case '財報季報':
+            rlt = ['最近1季', '最近2季', '最近3季', '最近4季']
+            break
+          case '價值評估':
+          case '籌碼面':
+          case '技術面':
+            rlt = ['最近1月', '最近2月', '最近3月', '最近4月', '最近5月', '最近6月']
+            break
+        }
+        return rlt
+      },
+      /**
+       * 資料型態選項
+       */
+      dataOptionOpts () {
+        let rlt = []
+        switch (this.getOpt.durTime) {
+          case '最近1年':
+          case '最近1季':
+          case '最近1月':
+            rlt = ['當期值']
+            break
+          default:
+            rlt = ['平均值', '合計值']
+            break
+        }
+        return rlt
       }
     },
     methods: {
       /* 輸入條件 */
       send () {
-        this.sendLoading = true
-        console.warn('預測因素', this.getOpt)
-        console.warn('預測目標', this.setOpt)
-
-        if (env) {
-          setTimeout(() =>  {
-            this.sendLoading = false
-          }, 3000)
-        }
-        else {
-          this.sendLoading = false
-        }
+        // 預測目標內容
+        const buyTime = this.setOpt.buyTime
+        const companyName = this.setOpt.companyName
+        const durTime = this.setOpt.durTime
+        const ror = this.setOpt.ror
+        this.setOpt.setList = [`預測目標︰於${buyTime}買進${companyName}，持有${durTime}個月後，報酬率是否大於${ror}%`]
+        
+        // 預測因素內容
+        const guessDurTime = this.getOpt.durTime
+        const guessCategoryItem = this.getOpt.categoryItem
+        const dataOption = this.getOpt.dataOption
+        const text = `${guessDurTime}${guessCategoryItem}${dataOption}`
+        this.getOpt.guessList.push(text)
       },
       /* 開始分析 */
       submit (type) {
@@ -158,7 +199,6 @@ $(function () {
 
         const getTrainingMaterials = this.getTrainingMaterials() // 取得訓練及測試資料
         const getMethodOfPrediction = this.getMethodOfPrediction(type) // 取得預測方法
-        const getTestAims = this.getTestAims() // 取得預測目標
         const getPredictiveAccuracy = this.getPredictiveAccuracy() // 取得預測正確率測試資料
         const getPredictiveEffect = this.getPredictiveEffect() // 取得預測效果
         const getPredictionConclusion = this.getPredictionConclusion() // 取得預測結論
@@ -167,7 +207,6 @@ $(function () {
         Promise.all([
           getTrainingMaterials,
           getMethodOfPrediction,
-          getTestAims,
           getPredictiveAccuracy,
           getPredictiveEffect,
           getPredictionConclusion,
@@ -204,8 +243,8 @@ $(function () {
           })
       },
       clear () {
-        this.setOpt = _.cloneDeep(setTemp)
-        this.getOpt = _.cloneDeep(guessTemp)
+        this.setOpt.setList = []
+        this.getOpt.guessList = []
       },
       /* 取得項目 */
       getUnit (info) {
@@ -373,22 +412,6 @@ $(function () {
             })
         })
       },
-      /* 取得預測目標 */
-      getTestAims () {
-        return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/textAims.json'
-          const getData = axios.create(httpGetCfg)
-          getData.get()
-            .then(res => {
-              this.testAims = res.data.map(d => _.get(d, 'x'))
-              resolve()
-            })
-            .catch(e => {
-              console.warn('error', e.message)
-              reject(e)
-            })
-        })
-      },
       /* 畫圖表 */
       renderTable () {
         this.$nextTick(() => {
@@ -441,9 +464,13 @@ $(function () {
     watch: {
       'getOpt.dataType' () {
         this.getOpt.categoryIdx = this.indexCategory[0]
+        this.getOpt.durTime = this.durTimeOpts[0]
       },
       'getOpt.categoryIdx' () {
         this.getOpt.categoryItem = this.itemCategory[0]
+      },
+      'getOpt.durTime' () {
+        this.getOpt.dataOption = this.dataOptionOpts[0]
       },
       'companyInfo' (val) {
         if (val.length !== 0) {

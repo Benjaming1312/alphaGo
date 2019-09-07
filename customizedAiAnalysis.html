@@ -122,16 +122,13 @@
                     <!-- 股票持有期間-->
                     <div class="form-group">
                       <label class="title" for="durTime">股票持有期間</label>
-                      <select class="form-control" id="durTime" name="durTime" v-model="setOpt.durTime">
-                        <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
-                      </select>
+                      <input class="form-control" id="durTime" name="durTime" v-model="setOpt.durTime" type="number" min="1" max=" 36"/>
                     </div>
                     <!-- 預估報酬率大於-->
                     <div class="form-group">
                       <label class="title" for="ror">預估報酬率大於</label>
-                      <input class="form-control" id="ror" type="number" value="50"/>
+                      <input class="form-control" id="ror" v-model="setOpt.ror" type="number" value="50" min="0" max="1e+06"/>
                     </div>
-                    <button class="btn" id="submit" @click="submit('setSync')"><i class="fa fa-spinner fa-pulse fa-fw" v-if="loading"></i>開始分析</button>
                   </div>
                 </section>
               </aside>
@@ -151,7 +148,7 @@
                     <div class="form-group">
                       <label class="title" for="perYear">資料統計年度</label>
                       <select class="form-control" id="perYear" name="perYear" v-model="getOpt.durTime">
-                        <option value="最近1年">最近1年</option>
+                        <option v-for="(data, idx) in durTimeOpts" :value="data" :key="idx">{{data}}</option>
                       </select>
                     </div>
                     <!-- 指標類別-->
@@ -175,7 +172,7 @@
                     <div class="form-group">
                       <label class="title" for="dataType">資料型態</label>
                       <select class="form-control" id="dataType" name="dataType" v-model="getOpt.dataOption">
-                        <option value="當期值">當期值</option>
+                        <option v-for="(data, idx) in dataOptionOpts" :value="data" :key="idx">{{data}}</option>
                       </select>
                     </div>
                     <!-- 輸入條件-->
@@ -192,7 +189,13 @@
                 <section class="section configuration attention">
                   <header class="head bg-color">預測目標內容</header>
                   <div class="content">
-                    <p v-for="(text, idx) in testAims" :key="idx" v-if="testAims.length &gt; 0">{{text}}</p>
+                    <p>{{this.setOpt.setList[0]}}</p>
+                  </div>
+                </section>
+                <section class="section configuration attention yellowD">
+                  <header class="head bg-color">預測因素內容</header>
+                  <div class="content">
+                    <p v-for="(text, idx) in this.getOpt.guessList" :key="idx">{{text}}</p>
                   </div>
                 </section>
               </aside>

@@ -44,9 +44,10 @@ $(function () {
         company: '全部上市櫃股票', // 產業類別
         endTime: '2019-07-11', // 股票買進結束日期
         druTime: 24, // 股票最大持有期間
-        stopCall: false, // 設定停損條件
+        stopCall: true, // 設定停損條件
         setPut: false, // 設定賣出條件
-        setCall: false // 達到買進條件，每月持續買進
+        setCall: false, // 達到買進條件，每月持續買進
+        stopLoss: -20 // 停損報酬率
       },
       // 投資策略模型
       backTestRlt: null, // 回測結果統計表
