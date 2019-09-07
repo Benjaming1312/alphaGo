@@ -130,9 +130,7 @@
                     <!-- 股票最大持有期間-->
                     <div class="form-group">
                       <label class="title" for="maxMonth">股票最大持有期間<span class="uint">（單位：月）</span></label>
-                      <select class="form-control" id="maxMonth" name="maxMonth" v-model="setOpts.druTime">
-                        <option v-for="(date, dateIdx) in druDate" :value="date" :key="dateIdx">{{date}}</option>
-                      </select>
+                      <input class="form-control" id="maxMonth" name="maxMonth" v-model="setOpts.druTime" type="number" min="1" max="120"/>
                     </div>
                     <div class="form-group checkbox">
                       <!-- 設定停損條件-->

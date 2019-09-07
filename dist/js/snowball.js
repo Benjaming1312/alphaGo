@@ -167,10 +167,11 @@ $(function () {
       /* 取得回測結果統計表*/
       getBackTestRlt () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/backTestRlt.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/statOutcome', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /statOutcome', res)
               // Clear Table
               if (!_.isNil(this.backTestRltTable)) {
                 this.backTestRltTable.destroy()
@@ -198,7 +199,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /statOutcome', e)
               reject(e)
             })
         })
@@ -206,10 +207,11 @@ $(function () {
       /* 取得回測結果資料表*/
       getBackTestDataSheet () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/backTestDataSheet.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/outcomeData', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /outcomeData', res)
               // Clear Table
               if (!_.isNil(this.backTestDataSheetTable)) {
                 this.backTestDataSheetTable.destroy()
@@ -237,6 +239,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /outcomeData', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -245,14 +248,16 @@ $(function () {
       /* 取得統計檢定*/
       getStatisticalVerify () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/statisticalVerify.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/statExam', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /statExam', res)
               this.statisticalVerify = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /statExam', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -281,14 +286,21 @@ $(function () {
       /* 取得模型效果分析文字*/
       getAnalyzeText () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/analyzeText.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/modelTest', {params: this.setOpts})
             .then(res => {
-              this.analyzeText = res.data.map(d => _.get(d, '文字敘述'))
+              console.info('API Response: /modelTest', res)
+              if (Array.isArray(res.data)) {
+                this.analyzeText = res.data.map(d => _.get(d, '文字敘述'))
+              }
+              else {
+                this.analyzeText = ''
+              }
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /modelTest', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -297,31 +309,35 @@ $(function () {
       /* 取得最新買進條件股票*/
       getLatestBuy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/latestBuy.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/selectedItem', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /selectedItem', res)
               // Clear
               this.latestBuy = []
               this.latestBuyColumns = []
 
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.latestBuyColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.latestBuyColumns.forEach(key => {
-                  newObj[key] = data[key]
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                // 準備title
+                Object.keys(res.data[0]).forEach(key => {
+                  this.latestBuyColumns.push(key)
                 })
-                this.latestBuy.push(newObj)
-              })
+  
+                // 把多餘的field 刪掉
+                res.data.forEach(data => {
+                  const newObj = {}
+                  this.latestBuyColumns.forEach(key => {
+                    newObj[key] = data[key]
+                  })
+                  this.latestBuy.push(newObj)
+                })
+              }
 
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /selectedItem', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -331,31 +347,35 @@ $(function () {
       getStopLossCondition () {
         return new Promise((resolve, reject) => {
         
-          httpGetCfg.baseURL = 'dist/data/strategyModel/stopLossCondition.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/selectedSell', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /selectedSell', res)
               // Clear
               this.stopLossCondition = []
               this.stopLossColumns = []
 
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.stopLossColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.stopLossColumns.forEach(key => {
-                  newObj[key] = data[key]
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                // 準備title
+                Object.keys(res.data[0]).forEach(key => {
+                  this.stopLossColumns.push(key)
                 })
-                this.stopLossCondition.push(newObj)
-              })
+  
+                // 把多餘的field 刪掉
+                res.data.forEach(data => {
+                  const newObj = {}
+                  this.stopLossColumns.forEach(key => {
+                    newObj[key] = data[key]
+                  })
+                  this.stopLossCondition.push(newObj)
+                })
+              }
 
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /selectedSell', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -365,16 +385,18 @@ $(function () {
       getChartData () {
         return new Promise((resolve, reject) => {
           // 取得圖表資料
-          httpGetCfg.baseURL = 'dist/data/chartData/chartData.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
           const getData1 = axios.create(httpGetCfg)
-          const dataRlt1 = getData1.get()
+          const dataRlt1 = getData1.get('/chartData', {params: this.setOpts})
 
           Promise.all([dataRlt1])
-            .then(rlt => {
-              this.chartData = rlt[0].data
+            .then(res => {
+              console.info('API Response: /chartData', res)
+              this.chartData = res[0].data
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /chartData', e)
               reject(e)
             })
         })

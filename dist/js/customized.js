@@ -20,7 +20,8 @@ const callTemp = {
   dataOption: '當期值', // 資料型態
   operator: '>', // 運算符號
   num: 10, // 數值
-  callList: ['最近1年股東權益報酬率當期值>10'] // 買進條件
+  callList: [], // 買進條件
+  listMap: [] // 買進條件Map
 }
 
 // 賣出條件 template
@@ -32,7 +33,8 @@ const putTemp = {
   dataOption: '當期值', // 資料型態
   operator: '>', // 運算符號
   num: 10, // 數值
-  putList: ['最近1年股東權益報酬率當期值>10'] // 賣出條件
+  putList: [], // 賣出條件
+  listMap: [] // 賣出條件Map
 }
 
 
@@ -75,7 +77,7 @@ $(function () {
         minMonth: 24, // 股票最小持有期間
         maxMonth: 24, // 股票最大持有期間
         stopLoss: -20, // 設定停損報酬率
-        setCall: false, // 設定每月買進
+        setCall: true, // 設定每月買進
         setPut: true, // 設定賣出條件
         setStopLoss: true // 設定停損條件
       },
@@ -253,6 +255,14 @@ $(function () {
             break
         }
         return rlt
+      },
+      /* 要送出的Data */
+      sendData () {
+        return {
+          historyOpt: this.historyOpt, //歷史數據分析條件
+          callOpt: this.historyOpt.setCall ? this.callOpt : null, // 每月買進
+          putOpt: this.historyOpt.setPut ? this.putOpt : null // 賣出條件
+        }
       }
     },
     methods: {
@@ -263,23 +273,22 @@ $(function () {
       },
       /* 輸入條件 */
       send (target) {
-        const drutime = this[`${target}Opt`].durTime
-        const item = this[`${target}Opt`].categoryItem
-        const dataOption = this[`${target}Opt`].dataOption
-        const oper = this[`${target}Opt`].operator
-        const num = this[`${target}Opt`].num
-        const text = `${drutime}${item}${dataOption}${oper}${num}`
+        const listMap = {
+          drutime: this[`${target}Opt`].durTime,
+          item: this[`${target}Opt`].categoryItem,
+          dataOption: this[`${target}Opt`].dataOption,
+          oper: this[`${target}Opt`].operator,
+          num: this[`${target}Opt`].num,
+        }
+
+        const text = `${listMap.drutime}${listMap.item}${listMap.dataOption}${listMap.oper}${listMap.num}`
         this[`${target}Opt`][`${target}List`].push(text)
+        this[`${target}Opt`].listMap.push(listMap)
       },
       /* 開始分析 */
       submit () {
         this.loading = true
-        const rlt = {
-          historyOpt: this.historyOpt, //歷史數據分析條件
-          callOpt: this.historyOpt.setCall ? this.callOpt : null, // 每月買進
-          putOpt: this.historyOpt.setPut ? this.putOpt : null // 賣出條件
-        }
-        console.warn('send info', rlt)
+        console.warn('submit', this.sendData)
 
         const getBackTestRlt = this.getBackTestRlt() // 取得回測結果統計表
         const getBackTestDataSheet = this.getBackTestDataSheet() // 取得回測結果資料表
@@ -334,14 +343,16 @@ $(function () {
        */
       clear (type) {
         this[`${type}Opt`][`${type}List`] = []
+        this[`${type}Opt`].listMap = []
       },
       /* 取得回測結果統計表*/
       getBackTestRlt () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/backTestRlt.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/statOutcome', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /statOutcome', res)
               // Clear Table
               if (!_.isNil(this.backTestRltTable)) {
                 this.backTestRltTable.destroy()
@@ -369,7 +380,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /statOutcome', e)
               reject(e)
             })
         })
@@ -377,10 +388,11 @@ $(function () {
       /* 取得回測結果資料表*/
       getBackTestDataSheet () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/backTestDataSheet.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/outcomeData', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /outcomeData', res)
               // Clear Table
               if (!_.isNil(this.backTestDataSheetTable)) {
                 this.backTestDataSheetTable.destroy()
@@ -408,7 +420,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /outcomeData', e)
               reject(e)
             })
         })
@@ -416,15 +428,16 @@ $(function () {
       /* 取得統計檢定*/
       getStatisticalVerify () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/statisticalVerify.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/statExam', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /statExam', res)
               this.statisticalVerify = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /statExam', e)
               reject(e)
             })
         })
@@ -452,15 +465,16 @@ $(function () {
       /* 取得模型效果分析文字*/
       getAnalyzeText () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/analyzeText.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
-            .then(res => {
+          getData.get('/modelTest', {params: this.sendData})
+          .then(res => {
+              console.info('API Response: /modelTest', res)
               this.analyzeText = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /modelTest', e)
               reject(e)
             })
         })
@@ -468,10 +482,11 @@ $(function () {
       /* 取得最新買進條件股票*/
       getLatestBuy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/strategyModel/latestBuy.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/selectedItem', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /selectedItem', res)
               // Clear
               this.latestBuy = []
               this.latestBuyColumns = []
@@ -493,7 +508,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /selectedItem', e)
               reject(e)
             })
         })
@@ -502,10 +517,11 @@ $(function () {
       getStopLossCondition () {
         return new Promise((resolve, reject) => {
         
-          httpGetCfg.baseURL = 'dist/data/strategyModel/stopLossCondition.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/selectedSell', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /selectedSell', res)
               // Clear
               this.stopLossCondition = []
               this.stopLossColumns = []
@@ -527,7 +543,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /selectedSell', e)
               reject(e)
             })
         })
@@ -536,16 +552,18 @@ $(function () {
       getChartData () {
         return new Promise((resolve, reject) => {
           // 取得圖表資料
-          httpGetCfg.baseURL = 'dist/data/chartData/chartData.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
           const getData1 = axios.create(httpGetCfg)
-          const dataRlt1 = getData1.get()
+          const dataRlt1 = getData1.get('/chartData', {params: this.setOpts})
 
           Promise.all([dataRlt1])
-            .then(rlt => {
-              this.chartData = rlt[0].data
+            .then(res => {
+              console.info('API Response: /chartData', res)
+              this.chartData = res[0].data
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /chartData', e)
               reject(e)
             })
         })

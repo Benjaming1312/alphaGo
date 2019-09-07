@@ -160,10 +160,11 @@ $(function () {
       /* 取得訓練及測試資料 */
       getTrainingMaterials () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/trainingMaterials.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/allData', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /allData', res)
               // Clear table
               if (!_.isNil(this.trainingTable)) {
                 this.trainingTable.destroy()
@@ -190,7 +191,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /allData', e)
               reject(e)
             })
         })
@@ -198,15 +199,16 @@ $(function () {
       /* 取得預測方法 */
       getMethodOfPrediction () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/methodOfPrediction.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/method', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /method', res)
               this.methodOfPrediction = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /method', e)
               reject(e)
             })
         })
@@ -214,10 +216,11 @@ $(function () {
       /* 取得預測正確率測試資料 */
       getPredictiveAccuracy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/predictiveAccuracy.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/dataTest', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /dataTest', res)
               // Clear table
               if (!_.isNil(this.predictiveAccuracyTable)) {
                 this.predictiveAccuracyTable.destroy()
@@ -243,7 +246,7 @@ $(function () {
               resolve()
           })
           .catch(e => {
-            console.warn('error', e.message)
+            console.error('API Fail: /dataTest', e)
             reject(e)
           })
         })
@@ -251,14 +254,16 @@ $(function () {
       /* 取得預測效果 */
       getPredictiveEffect () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/predictiveEffect.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/effect', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /effect', res)
               this.predictiveEffect = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /effect', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -267,14 +272,16 @@ $(function () {
       /* 取得預測結論 */
       getPredictionConclusion () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/predictionConclusion.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/conclusion', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /conclusion', res)
               this.predictionConclusion = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /conclusion', e)
               console.warn('error', e.message)
               reject(e)
             })
@@ -283,15 +290,16 @@ $(function () {
       /* 取得預測目標 */
       getTestAims () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/textAims.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/target', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /target', res)
               this.testAims = res.data.map(d => _.get(d, 'x'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /target', e)
               reject(e)
             })
         })
@@ -299,10 +307,11 @@ $(function () {
       /* 取得ROC曲線 */
       getRoc () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/roc.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/roc', {params: this.setOpts})
             .then(res => {
+              console.info('API Response: /roc', res)
               this.roc = res.data
               if (res.data.length > 0) {
                 Object.keys(res.data[0]).forEach(key => {
@@ -313,6 +322,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
+              console.error('API Fail: /roc', e)
               console.warn('error', e.message)
               reject(e)
             })

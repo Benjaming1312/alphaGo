@@ -171,39 +171,40 @@ $(function () {
           })
       },
       clear () {
-        this.analysisOpt =  _.cloneDeep(analyTemp)
+        // this.analysisOpt =  _.cloneDeep(analyTemp)
+        this.renderChart(true)
       },
       /* 取得數據圖表分析 */
       getData () {
-        return new Promise((resolve, rejects) => {
-          httpGetCfg.baseURL = 'dist/data/chartData/dataAnalytics.json'
-          const getData = axios.create(httpGetCfg)
-          getData.get()
-            .then(res => {
-              this.chartData = []
-              this.dataColumns = []
+      return new Promise((resolve, rejects) => {
+        httpGetCfg.baseURL = 'dist/data/chartData/dataAnalytics.json'
+        const getData = axios.create(httpGetCfg)
+        getData.get()
+          .then(res => {
+            this.chartData = []
+            this.dataColumns = []
 
-              Object.keys(res.data[0]).forEach(key => {
-                this.dataColumns.push(key)
-              })
-
-              res.data.forEach(data => {
-                const newObj = {}
-                this.dataColumns.forEach(key => {
-                  newObj[key] = data[key]
-                })
-                this.chartData.push(newObj)
-              })
-
-              resolve()
+            Object.keys(res.data[0]).forEach(key => {
+              this.dataColumns.push(key)
             })
-            .catch(e => {
-              console.warn('error', e.message)
-              rejects(e)
+
+            res.data.forEach(data => {
+              const newObj = {}
+              this.dataColumns.forEach(key => {
+                newObj[key] = data[key]
+              })
+              this.chartData.push(newObj)
             })
+
+            resolve()
+          })
+          .catch(e => {
+            console.warn('error', e.message)
+            rejects(e)
+          })
         })
       },
-      renderChart () {
+      renderChart (clear = false) {
         if (this.chartData.length === 0) {
           return
         }
@@ -231,7 +232,9 @@ $(function () {
         }
         chartOptions.series = []
 
-        
+        if (clear) {
+          this.dataColumns = ['月平均價']
+        }
 
         // Create series
         this.dataColumns.forEach((key, idx) => {

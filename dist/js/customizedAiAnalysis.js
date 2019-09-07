@@ -18,7 +18,8 @@ const setTemp = {
   buyTime: '2019-06-11', // 買進日期
   durTime: '24', // 持有期間
   ror: 10, // 預估報酬率
-  setList: []
+  setList: [],
+  listMap: []
 }
 
 // 預測因素Template
@@ -28,7 +29,8 @@ const guessTemp = {
   categoryIdx: '現金流量', // 指標類別
   categoryItem: '年度投資活動現金流量', // 項目
   dataOption: '當期值', // 資料型態
-  guessList: []
+  guessList: [],
+  listMap: []
 }
 
 // 顏色模板
@@ -172,30 +174,44 @@ $(function () {
             break
         }
         return rlt
+      },
+      /* 要送出的Data */
+      sendData () {
+        return {
+          setOpt: this.setOpt,
+          getOpt: this.getOpt
+        }
       }
     },
     methods: {
       /* 輸入條件 */
       send () {
         // 預測目標內容
-        const buyTime = this.setOpt.buyTime
-        const companyName = this.setOpt.companyName
-        const durTime = this.setOpt.durTime
-        const ror = this.setOpt.ror
-        this.setOpt.setList = [`預測目標︰於${buyTime}買進${companyName}，持有${durTime}個月後，報酬率是否大於${ror}%`]
+        const setListMap = {
+          buyTime: this.setOpt.buyTime,
+          companyName: this.setOpt.companyName,
+          durTime: this.setOpt.durTime,
+          ror: this.setOpt.ror
+        }
+
+        this.setOpt.setList = [`預測目標︰於${setListMap.buyTime}買進${setListMap.companyName}，持有${setListMap.durTime}個月後，報酬率是否大於${setListMap.ror}%`]
+        this.setOpt.listMap = [setListMap]
         
         // 預測因素內容
-        const guessDurTime = this.getOpt.durTime
-        const guessCategoryItem = this.getOpt.categoryItem
-        const dataOption = this.getOpt.dataOption
-        const text = `${guessDurTime}${guessCategoryItem}${dataOption}`
+        const guessListMap = {
+          guessDurTime: this.getOpt.durTime,
+          guessCategoryItem: this.getOpt.categoryItem,
+          dataOption: this.getOpt.dataOption,
+        }
+        const text = `${guessListMap.guessDurTime}${guessListMap.guessCategoryItem}${guessListMap.dataOption}`
         this.getOpt.guessList.push(text)
+        this.getOpt.listMap.push(guessListMap)
+
       },
       /* 開始分析 */
       submit (type) {
         this.loading = true
-        console.warn('預測因素', this.getOpt)
-        console.warn('預測目標', this.setOpt)
+        console.warn('submit', this.sendData)
 
         const getTrainingMaterials = this.getTrainingMaterials() // 取得訓練及測試資料
         const getMethodOfPrediction = this.getMethodOfPrediction(type) // 取得預測方法
@@ -270,10 +286,11 @@ $(function () {
       /* 取得訓練及測試資料 */
       getTrainingMaterials () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/trainingMaterials.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/allData', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /allData', res)
               // Clear table
               if (!_.isNil(this.trainingTable)) {
                 this.trainingTable.destroy()
@@ -300,7 +317,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /allData', e)
               reject(e)
             })
         })
@@ -308,15 +325,16 @@ $(function () {
       /* 取得預測方法 */
       getMethodOfPrediction (type) {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/methodOfPrediction.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/method', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /method', res)
               this[type].methodOfPrediction = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /method', e)
               reject(e)
             })
         })
@@ -324,10 +342,11 @@ $(function () {
       /* 取得預測正確率測試資料 */
       getPredictiveAccuracy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/predictiveAccuracy.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/dataTest', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /dataTest', res)
               // Clear table
               if (!_.isNil(this.predictiveAccuracyTable)) {
                 this.predictiveAccuracyTable.destroy()
@@ -353,7 +372,7 @@ $(function () {
               resolve()
           })
           .catch(e => {
-            console.warn('error', e.message)
+            console.error('API Fail: /dataTest', e)
             reject(e)
           })
         })
@@ -361,15 +380,16 @@ $(function () {
       /* 取得預測效果 */
       getPredictiveEffect () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/predictiveEffect.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/effect', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /effect', res)
               this.predictiveEffect = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /effect', e)
               reject(e)
             })
         })
@@ -377,15 +397,16 @@ $(function () {
       /* 取得預測結論 */
       getPredictionConclusion () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/predictionConclusion.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/conclusion', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /conclusion', res)
               this.predictionConclusion = res.data.map(d => _.get(d, '文字敘述'))
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /conclusion', e)
               reject(e)
             })
         })
@@ -393,10 +414,11 @@ $(function () {
       /* 取得ROC曲線 */
       getRoc () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'dist/data/ai/roc.json'
+          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
           const getData = axios.create(httpGetCfg)
-          getData.get()
+          getData.get('/roc', {params: this.sendData})
             .then(res => {
+              console.info('API Response: /roc', res)
               this.roc = res.data
               if (res.data.length > 0) {
                 Object.keys(res.data[0]).forEach(key => {
@@ -407,7 +429,7 @@ $(function () {
               resolve()
             })
             .catch(e => {
-              console.warn('error', e.message)
+              console.error('API Fail: /roc', e)
               reject(e)
             })
         })
