@@ -165,7 +165,7 @@ $(function () {
       /* 取得回測結果統計表*/
       getBackTestRlt () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/statOutcome', {params: this.setOpts})
             .then(res => {
@@ -205,7 +205,7 @@ $(function () {
       /* 取得回測結果資料表*/
       getBackTestDataSheet () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/outcomeData', {params: this.setOpts})
             .then(res => {
@@ -246,7 +246,7 @@ $(function () {
       /* 取得統計檢定*/
       getStatisticalVerify () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/statExam', {params: this.setOpts})
             .then(res => {
@@ -264,7 +264,7 @@ $(function () {
       /* 取得圖表資料*/
       getInvestmentModelDataSource () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3700'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/chartData', {params: this.setOpts})
             .then(res => {
@@ -285,7 +285,7 @@ $(function () {
       /* 取得模型效果分析文字*/
       getAnalyzeText () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/modelTest', {params: this.setOpts})
             .then(res => {
@@ -308,7 +308,7 @@ $(function () {
       /* 取得最新買進條件股票*/
       getLatestBuy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/selectedItem', {params: this.setOpts})
             .then(res => {
@@ -346,7 +346,7 @@ $(function () {
       getStopLossCondition () {
         return new Promise((resolve, reject) => {
         
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData = axios.create(httpGetCfg)
           getData.get('/selectedSell', {params: this.setOpts})
             .then(res => {
@@ -384,7 +384,7 @@ $(function () {
       getChartData () {
         return new Promise((resolve, reject) => {
           // 取得圖表資料
-          httpGetCfg.baseURL = 'http://18.219.6.80:3800'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3400'
           const getData1 = axios.create(httpGetCfg)
           const dataRlt1 = getData1.get('/chartData', {params: this.setOpts})
 

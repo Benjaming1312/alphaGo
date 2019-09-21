@@ -179,18 +179,39 @@ $(function () {
       sendData () {
         const setOptSend = _.cloneDeep(this.setOpt)
         const getOptSend = _.cloneDeep(this.getOpt)
+        const rlt = {}
 
-        if (getOptSend && getOptSend.listMap.length > 0) {
-          getOptSend.listMap = getOptSend.listMap.join('|')
-        }
-        else {
-          getOptSend.listMap = ''
-        }
+        // 預測目標塞入到要傳的資料內
+        Object.keys(setOptSend).forEach(key => {
+          if (key !== 'listMap') {
+            rlt[`set${key[0].toUpperCase()}${key.slice(1)}`] = setOptSend[key]
+          }
+          else {
+            const strRlt = []
+            setOptSend.listMap.forEach(item => {
+              strRlt.push(`${item.buyTime}/${item.companyName}/${item.durTime}/${item.ror}`)
+            })
 
-        return {
-          setOpt: setOptSend,
-          getOpt: getOptSend
-        }
+            rlt[`set${key[0].toUpperCase()}${key.slice(1)}`] = strRlt.join(',')
+          }
+        })
+
+        // 預測因素塞入到要傳的資料內
+        Object.keys(getOptSend).forEach(key => {
+          if (key !== 'listMap') {
+            rlt[`get${key[0].toUpperCase()}${key.slice(1)}`] = getOptSend[key]
+          }
+          else {
+            const strRlt = []
+            getOptSend.listMap.forEach(item => {
+              strRlt.push(`${convertDataType(getOptSend.dataType)}/${convertDurTime(item.guessDurTime)}/${convertCategoryItem(item.guessCategoryItem)}/${convertDataOption(item.dataOption)}`)
+            })
+
+            rlt[`get${key[0].toUpperCase()}${key.slice(1)}`] = strRlt.join(',')
+          }
+        })
+
+        return rlt
       }
     },
     methods: {
@@ -205,7 +226,7 @@ $(function () {
         }
 
         this.setOpt.setList = [`預測目標︰於${setListMap.buyTime}買進${setListMap.companyName}，持有${setListMap.durTime}個月後，報酬率是否大於${setListMap.ror}%`]
-        this.setOpt.listMap = `${setListMap.buyTime}/${setListMap.companyName}/${setListMap.durTime}/${setListMap.ror}`
+        this.setOpt.listMap = [setListMap]
         
         // 預測因素內容
         const guessListMap = {
@@ -214,7 +235,7 @@ $(function () {
           dataOption: this.getOpt.dataOption,
         }
         const text = `${guessListMap.guessDurTime}${guessListMap.guessCategoryItem}${guessListMap.dataOption}`
-        const rType = `${guessListMap.guessDurTime}/${guessListMap.guessCategoryItem}/${guessListMap.dataOption}`
+        const rType = guessListMap
         this.getOpt.guessList.push(text)
         this.getOpt.listMap.push(rType)
 
@@ -271,7 +292,9 @@ $(function () {
       },
       clear () {
         this.setOpt.setList = []
+        this.setOpt.listMap = []
         this.getOpt.guessList = []
+        this.getOpt.listMap = []
       },
       /* 取得項目 */
       getUnit (info) {
@@ -297,7 +320,7 @@ $(function () {
       /* 取得訓練及測試資料 */
       getTrainingMaterials () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3800'
           const getData = axios.create(httpGetCfg)
           getData.get('/allData', {params: this.sendData})
             .then(res => {
@@ -336,7 +359,7 @@ $(function () {
       /* 取得預測方法 */
       getMethodOfPrediction (type) {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3600'
           const getData = axios.create(httpGetCfg)
           getData.get('/method', {params: this.sendData})
             .then(res => {
@@ -353,7 +376,7 @@ $(function () {
       /* 取得預測正確率測試資料 */
       getPredictiveAccuracy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3600'
           const getData = axios.create(httpGetCfg)
           getData.get('/dataTest', {params: this.sendData})
             .then(res => {
@@ -391,7 +414,7 @@ $(function () {
       /* 取得預測效果 */
       getPredictiveEffect () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3600'
           const getData = axios.create(httpGetCfg)
           getData.get('/effect', {params: this.sendData})
             .then(res => {
@@ -408,7 +431,7 @@ $(function () {
       /* 取得預測結論 */
       getPredictionConclusion () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3600'
           const getData = axios.create(httpGetCfg)
           getData.get('/conclusion', {params: this.sendData})
             .then(res => {
@@ -425,7 +448,7 @@ $(function () {
       /* 取得ROC曲線 */
       getRoc () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3600'
           const getData = axios.create(httpGetCfg)
           getData.get('/roc', {params: this.sendData})
             .then(res => {

@@ -258,28 +258,51 @@ $(function () {
       },
       /* 要送出的Data */
       sendData () {
-        const callOptSend = this.historyOpt.setCall ? _.cloneDeep(this.callOpt) : null
-        const putOptSend = this.historyOpt.setPut ? _.cloneDeep(this.putOpt) : null
+        let callOptSend = this.historyOpt.setCall ? _.cloneDeep(this.callOpt) : null
+        let putOptSend = this.historyOpt.setPut ? _.cloneDeep(this.putOpt) : null
+        const rlt = {}
 
-        if (callOptSend && callOptSend.listMap.length > 0) {
-          callOptSend.listMap = callOptSend.listMap.join('|')
-        }
-        else {
-          callOptSend.listMap = ''
+        // 歷史數據分析條件塞入到要傳的資料內
+        Object.keys(this.historyOpt).forEach(key => {
+          rlt[`history${key[0].toUpperCase()}${key.slice(1)}`] = this.historyOpt[key]
+        })
+        
+        // 買進條件塞入到要傳的資料內
+        if (callOptSend) {
+          Object.keys(this.callOpt).forEach(key => {
+            if (key !== 'listMap' || this.callOpt.listMap.length === 0) {
+              rlt[`call${key[0].toUpperCase()}${key.slice(1)}`] = this.callOpt[key]
+            }
+            else {
+              const strRlt = []
+              this.callOpt.listMap.forEach(item => {
+                console.warn('item', item)
+                strRlt.push(`${convertDataType(this.callOpt.dataType)}/${convertCategoryItem(item.categoryItem)}/${convertDataOption(item.dataOption)}/${item.oper}/${item.num}`)
+              })
+
+              rlt[`call${key[0].toUpperCase()}${key.slice(1)}`] = strRlt.join(',')
+            }
+          })
         }
 
-        if (putOptSend && putOptSend.listMap.length > 0) {
-          putOptSend.listMap = putOptSend.listMap.join('|')
-        }
-        else {
-          putOptSend.listMap = ''
+        // 賣出條件塞入到要傳的資料內
+        if (putOptSend) {
+          Object.keys(this.putOpt).forEach(key => {
+            if (key !== 'listMap' || this.putOpt.listMap.length === 0) {
+              rlt[`put${key[0].toUpperCase()}${key.slice(1)}`] = this.putOpt[key]
+            }
+            else {
+              const strRlt = []
+              this.putOpt.listMap.forEach(item => {
+                strRlt.push(`${convertDataType(this.putOpt.dataType)}/${convertCategoryItem(item.categoryItem)}/${convertDataOption(item.dataOption)}/${item.oper}/${item.num}`)
+              })
+
+              rlt[`put${key[0].toUpperCase()}${key.slice(1)}`] = strRlt.join(',')
+            }
+          })
         }
 
-        return {
-          historyOpt: this.historyOpt, //歷史數據分析條件
-          callOpt: callOptSend, // 每月買進
-          putOpt: putOptSend // 賣出條件
-        }
+        return rlt
       }
     },
     methods: {
@@ -292,16 +315,16 @@ $(function () {
       send (target) {
         const listMap = {
           drutime: this[`${target}Opt`].durTime,
-          item: this[`${target}Opt`].categoryItem,
+          categoryItem: this[`${target}Opt`].categoryItem,
           dataOption: this[`${target}Opt`].dataOption,
           oper: this[`${target}Opt`].operator,
           num: this[`${target}Opt`].num,
         }
 
-        const text = `${listMap.drutime}${listMap.item}${listMap.dataOption}${listMap.oper}${listMap.num}`
-        const rType = `${listMap.drutime}/${listMap.item}/${listMap.dataOption}/${listMap.oper}/${listMap.num}`
+        const text = `${listMap.drutime}${listMap.categoryItem}${listMap.dataOption}${listMap.oper}${listMap.num}`
+        const rType = listMap
         this[`${target}Opt`][`${target}List`].push(text)
-        this[`${target}Opt`].listMap.push(rType)
+        this[`${target}Opt`]['listMap'].push(rType)
       },
       /* 開始分析 */
       submit () {
@@ -366,35 +389,36 @@ $(function () {
       /* 取得回測結果統計表*/
       getBackTestRlt () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData = axios.create(httpGetCfg)
-          console.log('%c (((o(*ﾟ▽ﾟ*)o))): ', 'padding: .25rem; font-size: 14px; background: #12bdba; color: #fff', this.sendData)
-          getData.get('/echo', {params: this.sendData})
+          getData.get('/statOutcome', {params: this.sendData})
             .then(res => {
-              console.info('API Response: /echo', res)
-              // Clear Table
-              if (!_.isNil(this.backTestRltTable)) {
-                this.backTestRltTable.destroy()
-                this.backTestRltTable = null
-              }
-
-              // Clear data
-              this.backTestRlt = []
-              this.backTestRltColumns = []
-
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.backTestRltColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.backTestRltColumns.forEach(key => {
-                  newObj[key] = data[key]
+              console.info('API Response: /statOutcome', res)
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                // Clear Table
+                if (!_.isNil(this.backTestRltTable)) {
+                  this.backTestRltTable.destroy()
+                  this.backTestRltTable = null
+                }
+  
+                // Clear data
+                this.backTestRlt = []
+                this.backTestRltColumns = []
+  
+                // 準備title
+                Object.keys(res.data[0]).forEach(key => {
+                  this.backTestRltColumns.push(key)
                 })
-                this.backTestRlt.push(newObj)
-              })
+  
+                // 把多餘的field 刪掉
+                res.data.forEach(data => {
+                  const newObj = {}
+                  this.backTestRltColumns.forEach(key => {
+                    newObj[key] = data[key]
+                  })
+                  this.backTestRlt.push(newObj)
+                })
+              }
               
               resolve()
             })
@@ -407,34 +431,37 @@ $(function () {
       /* 取得回測結果資料表*/
       getBackTestDataSheet () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData = axios.create(httpGetCfg)
           getData.get('/outcomeData', {params: this.sendData})
             .then(res => {
               console.info('API Response: /outcomeData', res)
-              // Clear Table
-              if (!_.isNil(this.backTestDataSheetTable)) {
-                this.backTestDataSheetTable.destroy()
-                this.backTestDataSheetTable = null
-              }
 
-              // Clear
-              this.backTestDataSheet = []
-              this.dataSheetColumns = []
-
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.dataSheetColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.dataSheetColumns.forEach(key => {
-                  newObj[key] = data[key]
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                // Clear Table
+                if (!_.isNil(this.backTestDataSheetTable)) {
+                  this.backTestDataSheetTable.destroy()
+                  this.backTestDataSheetTable = null
+                }
+  
+                // Clear
+                this.backTestDataSheet = []
+                this.dataSheetColumns = []
+  
+                // 準備title
+                Object.keys(res.data[0]).forEach(key => {
+                  this.dataSheetColumns.push(key)
                 })
-                this.backTestDataSheet.push(newObj)
-              })
+  
+                // 把多餘的field 刪掉
+                res.data.forEach(data => {
+                  const newObj = {}
+                  this.dataSheetColumns.forEach(key => {
+                    newObj[key] = data[key]
+                  })
+                  this.backTestDataSheet.push(newObj)
+                })
+              }
 
               resolve()
             })
@@ -447,12 +474,14 @@ $(function () {
       /* 取得統計檢定*/
       getStatisticalVerify () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData = axios.create(httpGetCfg)
           getData.get('/statExam', {params: this.sendData})
             .then(res => {
               console.info('API Response: /statExam', res)
-              this.statisticalVerify = res.data.map(d => _.get(d, '文字敘述'))
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                this.statisticalVerify = res.data.map(d => _.get(d, '文字敘述'))
+              }
               resolve()
             })
             .catch(e => {
@@ -485,12 +514,14 @@ $(function () {
       /* 取得模型效果分析文字*/
       getAnalyzeText () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData = axios.create(httpGetCfg)
           getData.get('/modelTest', {params: this.sendData})
           .then(res => {
               console.info('API Response: /modelTest', res)
-              this.analyzeText = res.data.map(d => _.get(d, '文字敘述'))
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                this.analyzeText = res.data.map(d => _.get(d, '文字敘述'))
+              }
               resolve()
             })
             .catch(e => {
@@ -502,28 +533,30 @@ $(function () {
       /* 取得最新買進條件股票*/
       getLatestBuy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData = axios.create(httpGetCfg)
           getData.get('/selectedItem', {params: this.sendData})
             .then(res => {
               console.info('API Response: /selectedItem', res)
-              // Clear
-              this.latestBuy = []
-              this.latestBuyColumns = []
-
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.latestBuyColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.latestBuyColumns.forEach(key => {
-                  newObj[key] = data[key]
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                // Clear
+                this.latestBuy = []
+                this.latestBuyColumns = []
+  
+                // 準備title
+                Object.keys(res.data[0]).forEach(key => {
+                  this.latestBuyColumns.push(key)
                 })
-                this.latestBuy.push(newObj)
-              })
+  
+                // 把多餘的field 刪掉
+                res.data.forEach(data => {
+                  const newObj = {}
+                  this.latestBuyColumns.forEach(key => {
+                    newObj[key] = data[key]
+                  })
+                  this.latestBuy.push(newObj)
+                })
+              }
 
               resolve()
             })
@@ -537,28 +570,31 @@ $(function () {
       getStopLossCondition () {
         return new Promise((resolve, reject) => {
         
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData = axios.create(httpGetCfg)
           getData.get('/selectedSell', {params: this.sendData})
             .then(res => {
               console.info('API Response: /selectedSell', res)
-              // Clear
-              this.stopLossCondition = []
-              this.stopLossColumns = []
 
-              // 準備title
-              Object.keys(res.data[0]).forEach(key => {
-                this.stopLossColumns.push(key)
-              })
-
-              // 把多餘的field 刪掉
-              res.data.forEach(data => {
-                const newObj = {}
-                this.stopLossColumns.forEach(key => {
-                  newObj[key] = data[key]
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                // Clear
+                this.stopLossCondition = []
+                this.stopLossColumns = []
+  
+                // 準備title
+                Object.keys(res.data[0]).forEach(key => {
+                  this.stopLossColumns.push(key)
                 })
-                this.stopLossCondition.push(newObj)
-              })
+  
+                // 把多餘的field 刪掉
+                res.data.forEach(data => {
+                  const newObj = {}
+                  this.stopLossColumns.forEach(key => {
+                    newObj[key] = data[key]
+                  })
+                  this.stopLossCondition.push(newObj)
+                })
+              }
 
               resolve()
             })
@@ -572,7 +608,7 @@ $(function () {
       getChartData () {
         return new Promise((resolve, reject) => {
           // 取得圖表資料
-          httpGetCfg.baseURL = 'http://18.219.6.80:3200'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3500'
           const getData1 = axios.create(httpGetCfg)
           const dataRlt1 = getData1.get('/chartData', {params: this.setOpts})
 
@@ -681,7 +717,7 @@ $(function () {
       getData.get()
         .then(res => {
           this.category = res.data.map(d => d.indus)
-          console.warn('get category', [res.data, this.category])
+          // console.warn('get category', [res.data, this.category])
         })
         .catch(e => {
           console.warn('error', e.message)

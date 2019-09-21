@@ -22,6 +22,7 @@ const analyTemp = {
   dataOption: '當期值', // 資料型態
   startTime: '2012-01-01', // 起始日期
   endTime: moment().format('YYYY-MM-DD'), // 結束日期
+  listMap: []
 }
 
 // 顏色模板
@@ -130,16 +131,54 @@ $(function () {
             break
         }
         return rlt
+      },
+      /* 要送出的Data */
+      sendData () {
+        const analysisData = _.cloneDeep(this.analysisOpt)
+        const rlt = {}
+        Object.keys(analysisData).forEach(key => {
+          if (key !== 'listMap') {
+            rlt[`call${key[0].toUpperCase()}${key.slice(1)}`] = analysisData[key]
+          }
+          else {
+            const strRlt = []
+            rlt[`call${key[0].toUpperCase()}${key.slice(1)}`] = []
+            analysisData.listMap.forEach(item => {
+              strRlt.push(`${convertDataType(analysisData.dataType)}/${convertDurTime(item.durTime)}/${convertCategoryItem(item.categoryItem)}/${convertDataOption(item.dataOption)}`)
+            })
+
+            rlt[`call${key[0].toUpperCase()}${key.slice(1)}`] = strRlt.join(',')
+          }
+        })
+
+        return rlt
       }
     },
     methods: {
+      /* 輸入條件 預備用 */
+      send () {
+        // 預測目標內容
+        const setListMap = {
+          companyName: this.analysisOpt.companyName,
+          dataType: this.analysisOpt.dataType,
+          durTime: this.analysisOpt.durTime,
+          categoryItem: this.analysisOpt.categoryItem,
+          dataOption: this.analysisOpt.dataOption,
+          startTime: this.analysisOpt.startTime,
+          endTime: this.analysisOpt.endTime
+        }
+        this.analysisOpt.listMap.push(setListMap)
+      },
       getUnit (info) {
         const rlt = this.unit.filter(data => data['項目'] === info)
         return rlt.length > 0 ? rlt[0]['單位'] : ''
       },
       submit () {
         this.loading = true
-        console.warn('option', this.analysisOpt)
+
+        // 輸入條件
+        this.send()
+        console.warn('option', this.sendData)
         
         this.getData()
           .then(() => {
@@ -172,6 +211,7 @@ $(function () {
       },
       clear () {
         // this.analysisOpt =  _.cloneDeep(analyTemp)
+        this.analysisOpt.listMap = []
         this.renderChart(true)
       },
       /* 取得數據圖表分析 */
@@ -179,7 +219,7 @@ $(function () {
       return new Promise((resolve, rejects) => {
         httpGetCfg.baseURL = 'http://18.219.6.80:3700'
         const getData = axios.create(httpGetCfg)
-        getData.get('/chartData', {params: this.analysisOpt})
+        getData.get('/chartData', {params: this.sendData})
           .then(res => {
             console.info('API Response: /chartData', res)
             if (Array.isArray(res.data) && res.data.length > 0) {

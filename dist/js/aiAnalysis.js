@@ -160,7 +160,7 @@ $(function () {
       /* 取得訓練及測試資料 */
       getTrainingMaterials () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/allData', {params: this.setOpts})
             .then(res => {
@@ -199,7 +199,7 @@ $(function () {
       /* 取得預測方法 */
       getMethodOfPrediction () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/method', {params: this.setOpts})
             .then(res => {
@@ -216,7 +216,7 @@ $(function () {
       /* 取得預測正確率測試資料 */
       getPredictiveAccuracy () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/dataTest', {params: this.setOpts})
             .then(res => {
@@ -234,6 +234,8 @@ $(function () {
               Object.keys(res.data[0]).forEach(key => {
                 this.predictiveAccuracyColumns.push(key)
               })
+
+              // res.data.map(d => _.get(d, '文字敘述'))
             
               // 把多餘的field 刪掉
               res.data.forEach(data => {
@@ -254,7 +256,7 @@ $(function () {
       /* 取得預測效果 */
       getPredictiveEffect () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/effect', {params: this.setOpts})
             .then(res => {
@@ -272,7 +274,7 @@ $(function () {
       /* 取得預測結論 */
       getPredictionConclusion () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/conclusion', {params: this.setOpts})
             .then(res => {
@@ -290,7 +292,7 @@ $(function () {
       /* 取得預測目標 */
       getTestAims () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/target', {params: this.setOpts})
             .then(res => {
@@ -304,10 +306,10 @@ $(function () {
             })
         })
       },
-      /* 取得ROC曲線 */
+      /*   */
       getRoc () {
         return new Promise((resolve, reject) => {
-          httpGetCfg.baseURL = 'http://18.219.6.80:3000'
+          httpGetCfg.baseURL = 'http://3.13.173.238:3700'
           const getData = axios.create(httpGetCfg)
           getData.get('/roc', {params: this.setOpts})
             .then(res => {
